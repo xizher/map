@@ -63,8 +63,7 @@ export class WebMap {
     /**
      * leaflet 地图（Map）对象
      */
-    let _map = null
-    this.map = _map
+    this.map = null
 
     this.initMap = async () => {
       const layers = mapConfig.basemapLayers
