@@ -5,8 +5,8 @@ export class DrawByPoint extends BaseTool {
     super(map)
     this.map.off('mouseup')
   }
-  onDrawCreated (event) {
-    console.log(event)
+  onDrawCreated (path) {
+    console.log(path)
   }
 }
 
