@@ -1,5 +1,8 @@
 import $L from 'leaflet'
 import { Basemap } from '../basemap/basemap.leaflet'
+import { MapCursor } from '../mapcursor/mapcursor.leaflet'
+import { MapObjectDisplay } from '../mapobjectdisplay/mapobjectdisplay'
+import { MapTools } from '../maptools/maptools.leaflet'
 
 
 export class WebMap {
@@ -71,19 +74,42 @@ export class WebMap {
      * @type {$L.Map}
      */
     this.map = $L.map(_divId, _mapOptions)
+    Object.assign(this.map, { owner: this }) // 对象的循环引用
 
     /**
      * 底图控制对象
      * @type {Basemap}
      */
     this.basemap = null
+
+    /**
+     * 地图鼠标样式控制对象
+     * @type {MapCursor}
+     */
+    this.mapCursor = null
+
+    /**
+     * 地图工具对象
+     * @type {MapTools}
+     */
+    this.mapTools = null
+    /**
+     * 地图工具对象
+     * @type {MapObjectDisplay}
+     */
+    this.mapObjectDisplay = null
     //#endregion
 
     //#region 地图对象初始化
     const init = async () => {
-      // this.map.on('load', () => {
       this.basemap = new Basemap(this.map, mapConfig.basemapOptions)
-      // })
+
+      this.mapCursor = new MapCursor(divId)
+
+      this.mapTools = new MapTools(this.map)
+
+      this.mapObjectDisplay = new MapObjectDisplay(this.map)
+
     }
     init()
     //#endregion

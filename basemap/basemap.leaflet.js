@@ -64,12 +64,13 @@ export class Basemap {
      */
     const _visible = ref(true)
     this.getVisible = () => _visible.value
+    let _tempActivedKey = -1 // 底图激活项Key值缓存
     watch(_visible, val => {
-      console.log(val)
       if (val) {
-        _loadBasemap()
+        _activedKey.value = _tempActivedKey
       } else {
-        _basemapItems.forEach(item => item.layer.removeFrom(_map))
+        _tempActivedKey = _activedKey.value
+        _activedKey.value = -1
       }
     })
 
