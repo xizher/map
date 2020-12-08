@@ -1,7 +1,7 @@
 import $L from 'leaflet'
 import { Basemap } from '../basemap/basemap.leaflet'
 import { MapCursor } from '../mapcursor/mapcursor.leaflet'
-import { MapObjectDisplay } from '../mapobjectdisplay/mapobjectdisplay'
+import { MapObjectDisplay } from '../mapobjectdisplay/mapobjectdisplay.leaflet'
 import { MapTools } from '../maptools/maptools.leaflet'
 
 
@@ -103,12 +103,10 @@ export class WebMap {
     //#region 地图对象初始化
     const init = async () => {
       this.basemap = new Basemap(this.map, mapConfig.basemapOptions)
-
+      this.mapObjectDisplay = new MapObjectDisplay(this.map)
       this.mapCursor = new MapCursor(divId)
-
       this.mapTools = new MapTools(this.map)
 
-      this.mapObjectDisplay = new MapObjectDisplay(this.map)
 
     }
     init()

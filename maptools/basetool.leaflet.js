@@ -1,6 +1,7 @@
 import { CustomEvent } from '../../ext/customevent'
 
 export class BaseTool extends CustomEvent {
+
   constructor (map) {
     super()
 
@@ -9,6 +10,7 @@ export class BaseTool extends CustomEvent {
      * @type {import('leaflet').Map}
      */
     this.map = map
+    // console.log(this)
 
     /**
      * 工具激活状态
@@ -38,9 +40,9 @@ export class BaseTool extends CustomEvent {
           this.onDrawMoving(event)
         }
       })
-      this.on('draw-created', result => {
+      this.on('draw-created', event => {
         if (this.actived) {
-          this.onDrawCreated(result)
+          this.onDrawCreated(event)
         }
       })
       this.on('tool-clear', () => {
@@ -48,18 +50,18 @@ export class BaseTool extends CustomEvent {
           this.onToolDeactive()
         }
       })
-      this.map.on('mousedown', event => {
-        this.fire('draw-actived', { originEvent: event })
-      })
-      this.map.on('mousemove', event => {
-        this.fire('draw-moving', { originEvent: event })
-      })
-      this.map.on('mouseup', event => {
-        this.fire('draw-created', { originEvent: event })
-      })
-      this.map.on('click', event => {
-        this.fire('draw-created', { originEvent: event })
-      })
+      // this.map.on('mousedown', event => {
+      //   this.fire('draw-actived', { originEvent: event })
+      // })
+      // this.map.on('mousemove', event => {
+      //   this.fire('draw-moving', { originEvent: event })
+      // })
+      // this.map.on('mouseup', event => {
+      //   this.fire('draw-created', { originEvent: event })
+      // })
+      // this.map.on('click', event => {
+      //   this.fire('draw-created', { originEvent: event })
+      // })
     }
     init()
   }
@@ -70,6 +72,7 @@ export class BaseTool extends CustomEvent {
     }
     this.actived = true
     this.fire('tool-actived')
+    return this
   }
 
   deactive () {
@@ -87,15 +90,15 @@ export class BaseTool extends CustomEvent {
     // ...
   }
 
-  onDrawActived (event) {
+  onDrawActived (/* event */) {
     // ...
   }
 
-  onDrawMoving (event) {
+  onDrawMoving (/* event */) {
     // ...
   }
 
-  onDrawCreated (event) {
+  onDrawCreated (/* event */) {
     // ...
   }
 

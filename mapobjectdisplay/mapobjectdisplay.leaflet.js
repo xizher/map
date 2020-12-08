@@ -28,7 +28,21 @@ export class MapObjectDisplay {
      */
     const _highlightGroup = new $L.LayerGroup().addTo(_layerGroup)
 
+    /**
+     * 过渡图形图层组（如绘制过程中的图形状态示意）
+     * @type {$L.LayerGroup}
+     */
+    const _tempGraphicGroup = new $L.LayerGroup().addTo(_layerGroup)
+
     Object.assign(this, {
+      setTemp (path) {
+        this.clearTemp()
+        path.addTo(_tempGraphicGroup)
+      },
+      clearTemp () {
+        _tempGraphicGroup.clearLayers()
+      },
+
       /**
        * 添加普通图形
        * @param {$L.Path | Array<$L.Path>} path
@@ -44,7 +58,7 @@ export class MapObjectDisplay {
        * @param {$L.Path | Array<$L.Path>} path
        */
       setGraphic (path) {
-        this.clearGraphic()
+        this.clearGraphics()
         this.addGraphic(path)
       },
 
@@ -53,9 +67,13 @@ export class MapObjectDisplay {
        * @param {$L.Path | Array<$L.Path>} path
        */
       removeGraphic (path) {
-        Array.isArray(path)
-          ? path.forEach(p => _graphicGroup.removeLayer(p))
-          : _graphicGroup.removeLayer(path)
+        if (path) {
+          Array.isArray(path)
+            ? path.forEach(p => _graphicGroup.removeLayer(p))
+            : _graphicGroup.removeLayer(path)
+        } else {
+          this.clearGraphics()
+        }
       },
 
       /**
@@ -66,14 +84,36 @@ export class MapObjectDisplay {
       },
 
       /**
+       * 添加高亮图形
+       * @param {$L.Path | Array<$L.Path>} path
+       */
+      addHighlight (path) {
+        Array.isArray(path)
+          ? path.forEach(p => p.addTo(_highlightGroup))
+          : path.addTo(_highlightGroup)
+      },
+
+      /**
        * 设置高亮图形
        * @param {$L.Path | Array<$L.Path>} path
        */
       setHighlight (path) {
         this.clearHighlight()
-        Array.isArray(path)
-          ? path.forEach(p => p.addTo(_highlightGroup))
-          : path.addTo(_highlightGroup)
+        this.addHighlight(path)
+      },
+
+      /**
+       * 移除指定的高亮图形
+       * @param {$L.Path | Array<$L.Path>} path
+       */
+      removeHighlight (path) {
+        if (path) {
+          Array.isArray(path)
+            ? path.forEach(p => _highlightGroup.removeLayer(p))
+            : _highlightGroup.removeLayer(path)
+        } else {
+          this.clearHighlight()
+        }
       },
 
       /**
