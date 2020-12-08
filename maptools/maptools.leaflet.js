@@ -1,4 +1,4 @@
-import { Draw } from './operationtools/draw'
+import { DrawTool, Drawer } from './operationtools/drawtool.leaflet'
 
 
 export class MapTools {
@@ -12,48 +12,16 @@ export class MapTools {
     const _map = map
 
     /**
-     * @type {import('../mapobjectdisplay/mapobjectdisplay.leaflet').MapObjectDisplay}
-     */
-    const _mapObjectDisplay = _map.owner.mapObjectDisplay
-
-    /**
      * 绘图器
      */
-    const _drawer = {
-      options: {
-        color: '#ff0000'
-      },
-      tempOptions: {
-        color: '#ff0000',
-        opacity: 0.5
-      },
-      add (path) {
-        _mapObjectDisplay.clearTemp(path)
-        path = _mapObjectDisplay.parseGraphic(path, _drawer.options)
-        _mapObjectDisplay.addGraphic(path)
-      },
-      set (path) {
-        _mapObjectDisplay.clearTemp(path)
-        _mapObjectDisplay.setGraphic(path)
-      },
-      setTemp (path) {
-        path = _mapObjectDisplay.parseGraphic(path, _drawer.tempOptions)
-        _mapObjectDisplay.setTemp(path)
-      },
-      remove (path) {
-        _mapObjectDisplay.removeGraphic(path)
-      },
-      clear () {
-        _mapObjectDisplay.clear()
-      }
-    }
+    const _drawer = new Drawer(_map)
 
     // _map.off('dblclick') // 取消leaflet默认双击放大事件
     /**
      * 地图操作工具集
      */
     const _mapOpreation = {
-      Draw: new Draw(_map, _drawer)
+      Draw: new DrawTool(_map, _drawer)
       // DrawByPoint: new DrawByPoint(_map, _drawer),
       // DrawByLine: new DrawByLine(_map, _drawer),
       // DrawByPolyline: new DrawByPolyline(_map, _drawer),

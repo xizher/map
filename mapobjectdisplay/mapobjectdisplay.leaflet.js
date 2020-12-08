@@ -34,12 +34,13 @@ export class MapObjectDisplay {
      */
     const _tempGraphicGroup = new $L.LayerGroup().addTo(_layerGroup)
 
+    //#region 公有方法
     Object.assign(this, {
-      setTemp (path) {
-        this.clearTemp()
+      setTempGraphic (path) {
+        this.clearTempGraphic()
         path.addTo(_tempGraphicGroup)
       },
-      clearTemp () {
+      clearTempGraphic () {
         _tempGraphicGroup.clearLayers()
       },
 
@@ -76,9 +77,7 @@ export class MapObjectDisplay {
         }
       },
 
-      /**
-       * 清除所有普通图形
-       */
+      /** 清除所有普通图形 */
       clearGraphics () {
         _graphicGroup.clearLayers()
       },
@@ -116,23 +115,19 @@ export class MapObjectDisplay {
         }
       },
 
-      /**
-       * 清空高亮图形
-       */
+      /** 清空高亮图形 */
       clearHighlight () {
         _highlightGroup.clearLayers()
       },
 
-      /**
-       * 清除所有图形
-       */
+      /** 清除所有图形 */
       clear () {
         _graphicGroup.clearLayers()
         _highlightGroup.clearLayers()
       },
 
       /**
-       *
+       * 解析成高亮样式的leaflet Path对象
        * @param {$L.Path | Array<$L.Path>} path
        * @param {$L.PathOptions} options
        */
@@ -154,7 +149,7 @@ export class MapObjectDisplay {
       },
 
       /**
-       *
+       * 解析成特定样式的leaflet Path对象
        * @param {$L.Path | Array<$L.Path>} path
        * @param {$L.PathOptions} options
        */
@@ -165,5 +160,6 @@ export class MapObjectDisplay {
         return path
       }
     })
+    //#endregion
   }
 }

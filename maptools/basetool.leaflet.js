@@ -7,7 +7,7 @@ export class BaseTool extends CustomEvent {
 
     /**
      * leaflet 地图对象
-     * @type {import('leaflet').Map}
+     * @type {import('../mapinit/mapinit.leaflet').$Map}
      */
     this.map = map
     // console.log(this)
@@ -15,95 +15,90 @@ export class BaseTool extends CustomEvent {
     /**
      * 工具激活状态
      */
-    this.actived = false
+    let _actived = false
+
+    Object.assign(this, {
+
+      getActived () {
+        return _actived
+      },
+
+      active () {
+        if (_actived) { // 已处于激活状态
+          return
+        }
+        _actived = true
+        this.fire('tool-actived')
+        return this
+      },
+
+      deactive () {
+        if (!_actived) { // 已处于失活状态
+          return
+        }
+        this.fire('tool-deactived')
+      },
+
+      onToolActived () {
+        // ...
+      },
+
+      onToolDeactive () {
+        // ...
+      },
+
+      onDrawActived (/* event */) {
+        // ...
+      },
+
+      onDrawMoving (/* event */) {
+        // ...
+      },
+
+      onDrawCreated (/* event */) {
+        // ...
+      },
+
+      onToolClear () {
+        // ...
+      },
+    })
 
     // 初始化
     const init = () => {
       this.on('tool-actived', () => {
-        if (this.actived) {
+        if (_actived) {
           this.onToolActived()
         }
       })
       this.on('tool-deactived', () => {
-        if (this.actived) {
-          this.actived = false
+        if (_actived) {
+          _actived = false
           this.onToolDeactive()
         }
       })
       this.on('draw-actived', event => {
-        if (this.actived) {
+        if (_actived) {
           this.onDrawActived(event)
         }
       })
       this.on('draw-moving', event => {
-        if (this.actived) {
+        if (_actived) {
           this.onDrawMoving(event)
         }
       })
       this.on('draw-created', event => {
-        if (this.actived) {
+        if (_actived) {
           this.onDrawCreated(event)
         }
       })
       this.on('tool-clear', () => {
-        if (this.actived) {
+        if (_actived) {
           this.onToolDeactive()
         }
       })
-      // this.map.on('mousedown', event => {
-      //   this.fire('draw-actived', { originEvent: event })
-      // })
-      // this.map.on('mousemove', event => {
-      //   this.fire('draw-moving', { originEvent: event })
-      // })
-      // this.map.on('mouseup', event => {
-      //   this.fire('draw-created', { originEvent: event })
-      // })
-      // this.map.on('click', event => {
-      //   this.fire('draw-created', { originEvent: event })
-      // })
     }
     init()
-  }
-
-  active () {
-    if (this.actived) { // 已处于激活状态
-      return
-    }
-    this.actived = true
-    this.fire('tool-actived')
-    return this
-  }
-
-  deactive () {
-    if (!this.actived.value) { // 已处于失活状态
-      return
-    }
-    this.fire('tool-deactived')
-  }
-
-  onToolActived () {
-    // ...
-  }
-
-  onToolDeactive () {
-    // ...
-  }
-
-  onDrawActived (/* event */) {
-    // ...
-  }
-
-  onDrawMoving (/* event */) {
-    // ...
-  }
-
-  onDrawCreated (/* event */) {
-    // ...
-  }
-
-  onToolClear () {
-    // ...
   }
 
 }
