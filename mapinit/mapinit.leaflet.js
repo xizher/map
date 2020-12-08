@@ -71,7 +71,7 @@ export class WebMap {
     //#region 共有变量
     /**
      * leaflet 地图（Map）对象
-     * @type {$L.Map}
+     * @type {import('./mapinit.leaflet').$Map}
      */
     this.map = $L.map(_divId, _mapOptions)
     Object.assign(this.map, { owner: this }) // 对象的循环引用

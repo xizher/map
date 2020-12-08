@@ -6,6 +6,9 @@ import { MapTools } from '../maptools/maptools.leaflet'
 
 export class $Map extends $L.Map {
   owner: WebMap
+  //#region 扩展 leaflet Map对象原型 的方法
+  $setExtent (path: $L.Polyline | $L.Polygon | $L.Rectangle) : this
+  //#endregion
 }
 
 export class WebMap {

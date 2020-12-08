@@ -5,7 +5,7 @@ export class DrawOperations {
 
   /**
    *
-   * @param {DrawTool} draw
+   * @param {DrawTool} drawTool
    */
   constructor (drawTool) {
 
@@ -17,6 +17,7 @@ export class DrawOperations {
     }
 
     this.clearDrawType = () => {
+      _drawTool.map.off('dblclick')
       _drawTool.map.off('click')
       _drawTool.map.off('mousedown')
       _drawTool.map.off('mousemove')
@@ -169,6 +170,7 @@ export class DrawOperations {
           const endLatlng = latlng
           const path = new $L.Rectangle([state.startLatlng, endLatlng])
           draw.drawer.add(path)
+          draw.fire('draw-created', { path })
         }
       }
     })
@@ -208,7 +210,7 @@ export class Drawer {
     const _map = map
 
     /**
-     * @type {import('../../mapobjectdisplay/mapobjectdisplay.leaflet')}
+     * @type {import('../../mapobjectdisplay/mapobjectdisplay.leaflet').MapObjectDisplay}
      */
     const _mapObjectDisplay = _map.owner.mapObjectDisplay
 
@@ -241,7 +243,7 @@ export class Drawer {
         _mapObjectDisplay.removeGraphic(path)
       },
       clear () {
-        _mapObjectDisplay.clear()
+        _mapObjectDisplay.clearGraphics()
       },
       setDrawedStyle (style) {
         Object.assign(_drawedstyle, style)

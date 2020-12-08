@@ -1,4 +1,5 @@
 import { DrawTool, Drawer } from './operationtools/drawtool.leaflet'
+import { ZoomTool } from './operationtools/zoomtool.leaflet'
 
 
 export class MapTools {
@@ -21,7 +22,8 @@ export class MapTools {
      * 地图操作工具集
      */
     const _mapOpreation = {
-      Draw: new DrawTool(_map, _drawer)
+      Draw: new DrawTool(_map, _drawer),
+      Zoom: new ZoomTool(_map, _drawer),
       // DrawByPoint: new DrawByPoint(_map, _drawer),
       // DrawByLine: new DrawByLine(_map, _drawer),
       // DrawByPolyline: new DrawByPolyline(_map, _drawer),
@@ -36,7 +38,7 @@ export class MapTools {
      */
     const init = () => {
       _map.off('dblclick') // 取消leaflet默认双击放大事件
-      _mapOpreation.Draw.active().setDrawType('Rectangle')
+      _mapOpreation.Zoom.active()
       // _mapOpreation.DrawByPoint.active()
       // _mapOpreation.DrawByLine.active()
       // _mapOpreation.DrawByPolyline.active()
