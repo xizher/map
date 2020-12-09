@@ -15,7 +15,7 @@ export class WebMap {
      * @type {$L.MapOptions}
      */
     const _mapOptions = {
-      preferCanvas: false, // 是否应在Canvas渲染器上渲染路径，否则使用SVG
+      preferCanvas: true, // 是否应在Canvas渲染器上渲染路径，否则使用SVG
       //#region 控制
       attributionControl: false, // 是否将归因控件添加到地图
       zoomControl: false, // 是否将缩放控件添加到地图

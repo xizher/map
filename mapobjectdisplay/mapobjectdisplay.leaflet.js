@@ -1,4 +1,5 @@
 import $L from 'leaflet'
+import { cloneLayer } from '../maputils/maputils.leaflet'
 
 
 export class MapObjectDisplay {
@@ -132,6 +133,8 @@ export class MapObjectDisplay {
        * @param {$L.PathOptions} options
        */
       parseHighlightGraphic (path, options = {}) {
+        const newPath = cloneLayer(path)
+        // const newPath = path
         /**
          * @type {$L.PathOptions}
          */
@@ -142,10 +145,10 @@ export class MapObjectDisplay {
           radius: 8
         }
         Object.assign(pathOptions, options)
-        Array.isArray(path)
-          ? path.forEach(p => p.setStyle(pathOptions))
-          : path.setStyle(pathOptions)
-        return path
+        Array.isArray(newPath)
+          ? newPath.forEach(p => p.setStyle(pathOptions))
+          : newPath.setStyle(pathOptions)
+        return newPath
       },
 
       /**
@@ -153,11 +156,13 @@ export class MapObjectDisplay {
        * @param {$L.Path | Array<$L.Path>} path
        * @param {$L.PathOptions} options
        */
-      parseGraphic (path, options = {}) {
+      parseGraphic (path, options = { }) {
+        const newPath = cloneLayer(path)
+        // const newPath = path
         Array.isArray(path)
-          ? path.forEach(p => p.setStyle(options))
-          : path.setStyle(options)
-        return path
+          ? newPath.forEach(p => p.setStyle(options))
+          : newPath.setStyle(options)
+        return newPath
       }
     })
     //#endregion

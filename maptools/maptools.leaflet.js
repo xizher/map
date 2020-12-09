@@ -1,5 +1,5 @@
 import { DrawTool, Drawer } from './operationtools/drawtool.leaflet'
-import { ZoomInWithFrameTool } from './operationtools/zoomtool.leaflet'
+import { ZoomInTool, ZoomInWithFrameTool, ZoomOutTool } from './operationtools/zoomtool.leaflet'
 
 export class MapTools {
 
@@ -16,6 +16,8 @@ export class MapTools {
      */
     const _drawer = new Drawer(_map)
 
+    const _toolState = ['', '']
+
     // _map.off('dblclick') // 取消leaflet默认双击放大事件
     /**
      * 地图操作工具集
@@ -28,23 +30,36 @@ export class MapTools {
       DrawRectangle: new DrawTool(_map, _drawer),
       DrawRectangleQuickly: new DrawTool(_map, _drawer),
       ZoomInWithFrame: new ZoomInWithFrameTool(_map, _drawer),
+      ZoomIn: new ZoomInTool(_map),
+      ZoomOut: new ZoomOutTool(_map),
     }
     this.mapOperation = _mapOperation
 
     Object.assign (this, {
       setMapTool (mapTool) {
+        _drawer.clear()
         for (const key in _mapOperation) {
           if (key === mapTool) {
+            _toolState.unshift(mapTool)
+            _toolState.pop()
             if (key.startsWith('Draw')) {
               _mapOperation[key].active().setDrawType(key.split('Draw')[1])
             } else {
               _mapOperation[key].active()
             }
           } else {
-            _drawer.clear()
             _mapOperation[key].deactive()
           }
         }
+      },
+      clearMapTool () {
+        for (const key in _mapOperation) {
+          _drawer.clear()
+          _mapOperation[key].deactive()
+        }
+      },
+      usePreTool () {
+        this.setMapTool(_toolState[1])
       },
     })
 

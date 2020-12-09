@@ -2,7 +2,7 @@ import { CustomEvent } from '../../ext/customevent'
 
 export class BaseTool extends CustomEvent {
 
-  constructor (map) {
+  constructor (map, one = false) {
     super()
 
     /**
@@ -16,6 +16,8 @@ export class BaseTool extends CustomEvent {
      * 工具激活状态
      */
     let _actived = false
+
+    const _one = one
 
     Object.assign(this, {
 
@@ -69,6 +71,10 @@ export class BaseTool extends CustomEvent {
       this.on('tool-actived', () => {
         if (_actived) {
           this.onToolActived()
+          if (_one) {
+            this.deactive()
+            this.map.owner.mapTools.usePreTool()
+          }
         }
       })
       this.on('tool-deactived', () => {

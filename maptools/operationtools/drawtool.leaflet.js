@@ -258,13 +258,13 @@ export class Drawer {
 
     /** 图元绘制完成后的样式 */
     const _drawedstyle = {
-      color: '#ff0000'
+      color: '#ff0000',
     }
 
     /** 图元绘制中的样式 */
     const _drawingStyle = {
       color: '#ff0000',
-      opacity: 0.5
+      opacity: 0.5,
     }
 
     Object.assign(this, {
