@@ -1,6 +1,13 @@
 import { BaseTool } from '../basetool.leaflet'
 import $L from 'leaflet'
 
+const _drawTool = Symbol('drawTool')
+const _drawer = Symbol('drawer')
+const _drawOperation = Symbol('drawOperation')
+const _mapObjectDisplay = Symbol('mapObjectDisplay')
+const _drawedStyle = Symbol('drawStyle')
+const _drawingStyle = Symbol('drawingStyle')
+
 export class DrawOperations {
 
   /**
@@ -9,19 +16,23 @@ export class DrawOperations {
    */
   constructor (drawTool) {
 
-    const _drawTool = drawTool
+    this[_drawTool] = drawTool
 
+    /**
+     *
+     * @param {string} drawtype
+     */
     this.setDrawType = drawtype => {
       this.clearDrawType()
-      drawtype && DrawOperations[drawtype](_drawTool)
+      drawtype && DrawOperations[drawtype.toUpperCase()](this[_drawTool])
     }
 
     this.clearDrawType = () => {
-      _drawTool.map.off('dblclick')
-      _drawTool.map.off('click')
-      _drawTool.map.off('mousedown')
-      _drawTool.map.off('mousemove')
-      _drawTool.map.off('mouseup')
+      this[_drawTool].getMap().off('dblclick')
+      this[_drawTool].getMap().off('click')
+      this[_drawTool].getMap().off('mousedown')
+      this[_drawTool].getMap().off('mousemove')
+      this[_drawTool].getMap().off('mouseup')
     }
 
   }
@@ -30,13 +41,13 @@ export class DrawOperations {
    *
    * @param {DrawTool} drawTool
    */
-  static Point (drawTool) {
-    drawTool.map.on('click', event => {
+  static POINT (drawTool) {
+    drawTool.getMap().on('click', event => {
       const { originalEvent: { button }, latlng } = event
       if (drawTool.getActived() && button === 0) {
         drawTool.fire('draw-actived', { originEvent: event })
         const path = new $L.CircleMarker(latlng)
-        drawTool.drawer.add(path)
+        drawTool.getDrawer().add(path)
         drawTool.fire('draw-created', { path })
       }
     })
@@ -46,19 +57,19 @@ export class DrawOperations {
    *
    * @param {DrawTool} drawTool
    */
-  static Line (drawTool) {
+  static LINE (drawTool) {
     const state = {
       drawing: false,
       startLatlng: null
     }
-    drawTool.map.on('mousemove', event => {
+    drawTool.getMap().on('mousemove', event => {
       if (drawTool.getActived() && state.drawing) {
         const endLatlng = event.latlng
         const path = new $L.Polyline([state.startLatlng, endLatlng])
-        drawTool.drawer.setTempGraphic(path)
+        drawTool.getDrawer().setTempGraphic(path)
       }
     })
-    drawTool.map.on('click', event => {
+    drawTool.getMap().on('click', event => {
       const { originalEvent: { button }, latlng } = event
       if (drawTool.getActived() && button === 0) {
         state.drawing = !state.drawing
@@ -68,7 +79,7 @@ export class DrawOperations {
         } else {
           const endLatlng = latlng
           const path = new $L.Polyline([state.startLatlng, endLatlng])
-          drawTool.drawer.add(path)
+          drawTool.getDrawer().add(path)
         }
       }
     })
@@ -78,13 +89,13 @@ export class DrawOperations {
    *
    * @param {DrawTool} drawTool
    */
-  static Polyline (drawTool) {
+  static POLYLINE (drawTool) {
     const state = {
       drawing: false,
       latlngs: []
     }
 
-    drawTool.map.on('click', event => {
+    drawTool.getMap().on('click', event => {
       const { originalEvent: { button }, latlng } = event
       if (drawTool.getActived() && button === 0) {
         if (!state.drawing) {
@@ -93,19 +104,19 @@ export class DrawOperations {
         state.latlngs.push(latlng)
       }
     })
-    drawTool.map.on('mousemove', event => {
+    drawTool.getMap().on('mousemove', event => {
       if (drawTool.getActived() && state.drawing) {
         const path = new $L.Polyline([...state.latlngs, event.latlng])
-        drawTool.drawer.setTempGraphic(path)
+        drawTool.getDrawer().setTempGraphic(path)
       }
     })
-    drawTool.map.on('dblclick', event => {
+    drawTool.getMap().on('dblclick', event => {
       const { originalEvent: { button } } = event
       if (drawTool.getActived() && button === 0) {
         state.drawing = false
         state.latlngs.pop()
         const path = new $L.Polyline(state.latlngs)
-        drawTool.drawer.add(path)
+        drawTool.getDrawer().add(path)
         state.latlngs.$clear()
       }
     })
@@ -115,13 +126,13 @@ export class DrawOperations {
    *
    * @param {DrawTool} drawTool
    */
-  static Polygon (drawTool) {
+  static POLYGON (drawTool) {
     const state = {
       drawing: false,
       latlngs: []
     }
 
-    drawTool.map.on('click', event => {
+    drawTool.getMap().on('click', event => {
       const { originalEvent: { button }, latlng } = event
       if (drawTool.getActived() && button === 0) {
         if (!state.drawing) {
@@ -130,19 +141,19 @@ export class DrawOperations {
         state.latlngs.push(latlng)
       }
     })
-    drawTool.map.on('mousemove', event => {
+    drawTool.getMap().on('mousemove', event => {
       if (drawTool.getActived() && state.drawing) {
         const path = new $L.Polygon([...state.latlngs, event.latlng])
-        drawTool.drawer.setTempGraphic(path)
+        drawTool.getDrawer().setTempGraphic(path)
       }
     })
-    drawTool.map.on('dblclick', event => {
+    drawTool.getMap().on('dblclick', event => {
       const { originalEvent: { button } } = event
       if (drawTool.getActived() && button === 0) {
         state.drawing = false
         state.latlngs.pop()
         const path = new $L.Polygon(state.latlngs)
-        drawTool.drawer.add(path)
+        drawTool.getDrawer().add(path)
         state.latlngs.$clear()
       }
     })
@@ -152,13 +163,13 @@ export class DrawOperations {
    *
    * @param {DrawTool} drawTool
    */
-  static Rectangle (drawTool) {
+  static RECTANGLE (drawTool) {
     const state = {
       drawing: false,
       startLatlng: null
     }
 
-    drawTool.map.on('click', event => {
+    drawTool.getMap().on('click', event => {
       const { originalEvent: { button }, latlng } = event
       if (drawTool.getActived() && button === 0) {
         state.drawing = !state.drawing
@@ -168,17 +179,17 @@ export class DrawOperations {
         } else {
           const endLatlng = latlng
           const path = new $L.Rectangle([state.startLatlng, endLatlng])
-          drawTool.drawer.add(path)
+          drawTool.getDrawer().add(path)
           drawTool.fire('draw-created', { path })
         }
       }
     })
-    drawTool.map.on('mousemove', event => {
+    drawTool.getMap().on('mousemove', event => {
       if (drawTool.getActived()) {
         if (state.drawing) {
           const endLatlng = event.latlng
           const path = new $L.Rectangle([state.startLatlng, endLatlng])
-          drawTool.drawer.setTempGraphic(path)
+          drawTool.getDrawer().setTempGraphic(path)
         }
       }
     })
@@ -188,33 +199,33 @@ export class DrawOperations {
    *
    * @param {DrawTool} drawTool
    */
-  static RectangleQuickly (drawTool) {
+  static RECTANGLEQUICKLY (drawTool) {
     const state = {
       drawing: false,
       latlng: null
     }
-    drawTool.map.on('mousedown', event => {
+    drawTool.getMap().on('mousedown', event => {
       const { originalEvent: { button }, latlng } = event
       if (drawTool.getActived() && button === 0) {
-        drawTool.map.$setMapDraggable(false)
+        drawTool.getMap().$setMapDraggable(false)
         state.drawing = true
         drawTool.fire('draw-actived', { originEvent: event })
         state.latlng = latlng
       }
     })
-    drawTool.map.on('mousemove', event => {
+    drawTool.getMap().on('mousemove', event => {
       if (drawTool.getActived() && state.drawing) {
         const path = new $L.Rectangle([state.latlng, event.latlng])
-        drawTool.drawer.setTempGraphic(path)
+        drawTool.getDrawer().setTempGraphic(path)
       }
     })
-    drawTool.map.on('mouseup', event => {
+    drawTool.getMap().on('mouseup', event => {
       const { originalEvent: { button }, latlng } = event
       if (drawTool.getActived() && button === 0) {
-        drawTool.map.$setMapDraggable(true)
+        drawTool.getMap().$setMapDraggable(true)
         state.drawing = false
         const path = new $L.Rectangle([state.latlng, latlng])
-        drawTool.drawer.add(path)
+        drawTool.getDrawer().add(path)
         drawTool.fire('draw-created', { path })
       }
     })
@@ -229,15 +240,20 @@ export class DrawTool extends BaseTool {
     /**
      * @type {Drawer}
      */
-    this.drawer = drawer
+    this[_drawer] = drawer
 
-    const _drawOperation = new DrawOperations(this)
+    this[_drawOperation] = new DrawOperations(this)
 
-    this.setDrawType = drawtype => {
-      _drawOperation.setDrawType(drawtype)
-      return this
-    }
 
+  }
+
+  getDrawer () {
+    return this[_drawer]
+  }
+
+  setDrawType (drawtype) {
+    this[_drawOperation].setDrawType(drawtype)
+    return this
   }
 }
 
@@ -247,54 +263,54 @@ export class Drawer {
   constructor (map) {
 
     /**
-     * @type {import('../../mapinit/mapinit.leaflet').$Map}
-     */
-    const _map = map
-
-    /**
      * @type {import('../../mapobjectdisplay/mapobjectdisplay.leaflet').MapObjectDisplay}
      */
-    const _mapObjectDisplay = _map.owner.mapObjectDisplay
+    this[_mapObjectDisplay] = map.owner.mapObjectDisplay
 
     /** 图元绘制完成后的样式 */
-    const _drawedstyle = {
+    this[_drawedStyle] = {
       color: '#ff0000',
     }
 
     /** 图元绘制中的样式 */
-    const _drawingStyle = {
+    this[_drawingStyle] = {
       color: '#ff0000',
       opacity: 0.5,
     }
-
-    Object.assign(this, {
-      add (path) {
-        _mapObjectDisplay.clearTempGraphic(path)
-        path = _mapObjectDisplay.parseGraphic(path, _drawedstyle)
-        _mapObjectDisplay.addGraphic(path)
-      },
-      set (path) {
-        _mapObjectDisplay.clearTempGraphic(path)
-        _mapObjectDisplay.setGraphic(path)
-      },
-      setTempGraphic (path) {
-        path = _mapObjectDisplay.parseGraphic(path, _drawingStyle)
-        _mapObjectDisplay.setTempGraphic(path)
-      },
-      remove (path) {
-        _mapObjectDisplay.removeGraphic(path)
-      },
-      clear () {
-        _mapObjectDisplay.clearGraphics()
-      },
-      setDrawedStyle (style) {
-        Object.assign(_drawedstyle, style)
-      },
-      setDrawingStyle (style) {
-        Object.assign(_drawingStyle, style)
-      },
-    })
-
   }
+
+
+  add (path) {
+    this[_mapObjectDisplay].clearTempGraphic(path)
+    path = this[_mapObjectDisplay].parseGraphic(path, this[_drawedStyle])
+    this[_mapObjectDisplay].addGraphic(path)
+  }
+
+  set (path) {
+    this[_mapObjectDisplay].clearTempGraphic(path)
+    this[_mapObjectDisplay].setGraphic(path)
+  }
+
+  setTempGraphic (path) {
+    path = this[_mapObjectDisplay].parseGraphic(path, this[_drawingStyle])
+    this[_mapObjectDisplay].setTempGraphic(path)
+  }
+
+  remove (path) {
+    this[_mapObjectDisplay].removeGraphic(path)
+  }
+
+  clear () {
+    this[_mapObjectDisplay].clearGraphics()
+  }
+
+  setDrawedStyle (style) {
+    Object.assign(this[_drawedStyle], style)
+  }
+
+  setDrawingStyle (style) {
+    Object.assign(this[_drawingStyle], style)
+  }
+
 }
 

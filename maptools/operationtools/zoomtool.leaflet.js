@@ -2,7 +2,7 @@ import { BaseTool } from '../basetool.leaflet'
 import { DrawTool } from './drawtool.leaflet'
 
 /** 拉框放大 */
-export class ZoomInWithFrameTool extends DrawTool {
+export class ZoomInRect extends DrawTool {
   constructor (map, drawer) {
     super(map, drawer)
 
@@ -12,8 +12,8 @@ export class ZoomInWithFrameTool extends DrawTool {
       },
 
       onDrawCreated (event) { // 重写
-        this.drawer.clear()
-        this.map.$setExtent(event.path)
+        this.getDrawer().clear()
+        this.getMap().$setExtent(event.path)
       }
     })
 
@@ -37,12 +37,12 @@ export class ZoomInTool extends BaseTool {
 
     Object.assign(this, {
       onToolActived () {
-        this.map.zoomIn(1)
+        this.getMap().zoomIn(1)
       },
 
       onDrawCreated (event) { // 重写
-        this.drawer.clear()
-        this.map.$setExtent(event.path)
+        this.getDrawer().clear()
+        this.getMap().$setExtent(event.path)
       }
     })
 
@@ -57,12 +57,12 @@ export class ZoomOutTool extends BaseTool {
 
     Object.assign(this, {
       onToolActived () {
-        this.map.zoomOut(1)
+        this.getMap().zoomOut(1)
       },
 
       onDrawCreated (event) { // 重写
-        this.drawer.clear()
-        this.map.$setExtent(event.path)
+        this.getDrawer().clear()
+        this.getMap().$setExtent(event.path)
       }
     })
 

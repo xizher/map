@@ -8,14 +8,18 @@ export class BaseTool extends CustomEvent {
   /**
    * 构造函数
    * @param map leaflet Map 对象
+   * @param once 是否为一次性工具（一次性工具：工具激活事件完成后执行取消工具激活）
    */
-  constructor (map: $Map)
-
-  /** 绑定的地图对象 */
-  map: $Map
+  constructor (map: $Map, once: boolean)
 
   /** 获得当前工具的激活状态 */
   getActived () : boolean
+
+  /** 获取绑定的 leaflet Map对象 */
+  getMap () : $Map
+
+  /** 工具是否为一次性工具 */
+  isOnce () : boolean
 
   /**
    * 激活当前工具

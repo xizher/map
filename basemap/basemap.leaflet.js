@@ -1,6 +1,15 @@
 import { ref, watch } from 'vue'
 import $L from 'leaflet'
 
+const _map = Symbol('map')
+const _layerGroup = Symbol('layerGroup')
+const _basemapItems = Symbol('basemapItems')
+const _activedKey = Symbol('activedKey')
+const _visible = Symbol('visible')
+const _tempActivedKey = Symbol('tempActivedKey')
+const _options = Symbol('options')
+
+
 /**
  * leaflet 地图控制类
  */
@@ -15,90 +24,89 @@ export class Basemap {
    */
   constructor (map, options) {
 
+    //#region 私有方法（伪）
     /**
      * leaflet地图对象
      * @type {import('../mapinit/mapinit.leaflet').$Map}
      */
-    const _map = map
+    this[_map] = map
+
+    /** 底图配置项 */
+    this[_options] = options
+
     /** 底图图层组 */
-    const _layerGroup = new $L.LayerGroup().addTo(_map)
+    this[_layerGroup] = new $L.LayerGroup().addTo(this[_map])
 
     /**
      * 底图图层
      * @type {Array<{
      *  layer: $L.Layer
-     *  actived: boolean
      *  name: string
      *  type: string
      *  alias: string
      *  key: string
      * }>}
      */
-    const _basemapItems = []
+    this[_basemapItems] = []
 
     /** 当前激活的底图项的Key值 */
-    const _activedKey = ref(-1)
-    watch(_activedKey, val => { // 监听_activedKey值变化，并根据变化值更新底图
-      const index = _basemapItems.findIndex(item => item.key === val)
-      _basemapItems.forEach((item, i) => item.actived = i === index)
-      _loadBasemap()
-    })
+    this[_activedKey] = ref(-1)
 
     /** 底图可见性 */
-    const _visible = ref(true)
-    let _tempActivedKey = -1 // 底图激活项Key值缓存
-    watch(_visible, val => { // 监听_visible变化以更新底图的可见性
-      if (val) {
-        _activedKey.value = _tempActivedKey
-      } else {
-        _tempActivedKey = _activedKey.value
-        _activedKey.value = -1
-      }
-    })
-
-    //#region 私有方法
-    function _loadBasemap () {
-      _basemapItems.forEach(item => {
-        item.actived
-          ? item.layer.addTo(_layerGroup)
-          : item.layer.removeFrom(_layerGroup)
-      })
-    }
-    //#endregion
-
-    //#region 公有方法
-    Object.assign(this, {
-      setBasemap (key) {
-        _activedKey.value = key
-      },
-      clearBasemap () {
-        _activedKey.value = -1
-      },
-      setVisible (visible) {
-        _visible.value = visible
-      }
-    })
+    this[_visible] = ref(true)
+    this[_tempActivedKey] = -1 // 底图激活项Key值缓存
     //#endregion
 
     //#region 初始化
     const init = async () => {
+
+      // 监听_activedKey值变化，并根据变化值更新底图
+      watch(this[_activedKey], val => {
+        this[_layerGroup].clearLayers()
+        if (val !== -1) {
+          const index = this[_basemapItems].findIndex(item => item.key === val)
+          this[_basemapItems][index].layer.addTo(this[_layerGroup])
+        }
+      })
+
+      // 监听_visible变化以更新底图的可见性
+      watch(this[_visible], val => {
+        if (val) {
+          this[_activedKey].value = this[_tempActivedKey]
+        } else {
+          this[_tempActivedKey] = this[_activedKey].value
+          this[_activedKey].value = -1
+        }
+      })
+
+      // 初始化底图服务
       const { layers } = options
       for (let i = 0; i < layers.length ?? 0; i++) {
         const lyr = layers[i]
         if (lyr.type === 'tileLayer') {
-          _basemapItems.push({
+          this[_basemapItems].push({
             // layer: await createTileLayer(lyr.url, lyr.options),
             layer: await $L.tileLayer(lyr.url, lyr.options || {}),
-            actived: false,
             ...lyr,
           })
         }
       }
-      _activedKey.value = options.activedKey
+      this[_activedKey].value = options.activedKey
     }
     init()
     //#endregion
   }
 
+  setBasemap (key) {
+    this[_activedKey].value = key
+  }
+
+  clearBasemap () {
+    this[_activedKey].value = -1
+  }
+
+  setVisible (visible) {
+    this[_visible].value = visible
+  }
 
 }

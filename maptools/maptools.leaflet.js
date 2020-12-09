@@ -1,5 +1,10 @@
 import { DrawTool, Drawer } from './operationtools/drawtool.leaflet'
-import { ZoomInTool, ZoomInWithFrameTool, ZoomOutTool } from './operationtools/zoomtool.leaflet'
+import { ZoomInTool, ZoomInRect, ZoomOutTool } from './operationtools/zoomtool.leaflet'
+
+const _map = Symbol('map')
+const _drawer = Symbol('drawer')
+const _mapOperations = Symbol('mapOperations')
+const _preMapTool = Symbol('preMapTool')
 
 export class MapTools {
 
@@ -9,67 +14,69 @@ export class MapTools {
      * leaflet 地图对象
      * @type {import('leaflet').Map}
      */
-    const _map = map
+    this[_map] = map
 
     /**
      * 绘图器
      */
-    const _drawer = new Drawer(_map)
+    this[_drawer] = new Drawer(this[_map])
 
-    const _toolState = ['', '']
 
     // _map.off('dblclick') // 取消leaflet默认双击放大事件
     /**
      * 地图操作工具集
+     * @type {Array<import('../maptools/basetool.leaflet').BaseTool>}
      */
-    const _mapOperation = {
-      DrawPoint: new DrawTool(_map, _drawer),
-      DrawLine: new DrawTool(_map, _drawer),
-      DrawPolyline: new DrawTool(_map, _drawer),
-      DrawPolygon: new DrawTool(_map, _drawer),
-      DrawRectangle: new DrawTool(_map, _drawer),
-      DrawRectangleQuickly: new DrawTool(_map, _drawer),
-      ZoomInWithFrame: new ZoomInWithFrameTool(_map, _drawer),
-      ZoomIn: new ZoomInTool(_map),
-      ZoomOut: new ZoomOutTool(_map),
+    this[_mapOperations] = {
+      drawpoint: new DrawTool(this[_map], this[_drawer]),
+      drawline: new DrawTool(this[_map], this[_drawer]),
+      drawpolyline: new DrawTool(this[_map], this[_drawer]),
+      drawpolygon: new DrawTool(this[_map], this[_drawer]),
+      drawrectangle: new DrawTool(this[_map], this[_drawer]),
+      drawrectanglequickly: new DrawTool(this[_map], this[_drawer]),
+      zoominrect: new ZoomInRect(this[_map], this[_drawer]),
+      zoomin: new ZoomInTool(this[_map]),
+      zoomout: new ZoomOutTool(this[_map]),
     }
-    this.mapOperation = _mapOperation
 
-    Object.assign (this, {
-      setMapTool (mapTool) {
-        _drawer.clear()
-        for (const key in _mapOperation) {
-          if (key === mapTool) {
-            _toolState.unshift(mapTool)
-            _toolState.pop()
-            if (key.startsWith('Draw')) {
-              _mapOperation[key].active().setDrawType(key.split('Draw')[1])
-            } else {
-              _mapOperation[key].active()
-            }
-          } else {
-            _mapOperation[key].deactive()
-          }
-        }
-      },
-      clearMapTool () {
-        for (const key in _mapOperation) {
-          _drawer.clear()
-          _mapOperation[key].deactive()
-        }
-      },
-      usePreTool () {
-        this.setMapTool(_toolState[1])
-      },
-    })
+    this[_preMapTool] = ''
 
-    /**
-     * 初始化
-     */
+    /** 初始化 */
     const init = () => {
-      _map.off('dblclick')
+      this[_map].off('dblclick')
     }
     init()
+  }
+
+  /**
+   *
+   * @param {string} mapTool
+   */
+  setMapTool (mapTool) {
+    this[_drawer].clear()
+    for (const key in this[_mapOperations]) {
+      if (key === mapTool.toLowerCase()) {
+        if (key.startsWith('draw')) {
+          this[_mapOperations][key].active().setDrawType(key.split('draw')[1])
+        } else {
+          this[_mapOperations][key].active()
+        }
+        if (this[_mapOperations][key].isOnce()) {
+          this.setMapTool(this[_preMapTool])
+        } else {
+          this[_preMapTool] = key
+        }
+      } else {
+        this[_mapOperations][key].deactive()
+      }
+    }
+  }
+
+  clearMapTool () {
+    for (const key in this[_mapOperations]) {
+      this[_drawer].clear()
+      this[_mapOperations][key].deactive()
+    }
   }
 
 }
