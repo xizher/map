@@ -6,8 +6,12 @@ import $L from 'leaflet'
  */
 $L.Map.prototype.$setExtent = function (path) {
   const bounds = path.getBounds()
-  this.fitBounds(bounds, {
-    padding: [0, 0]
-  })
+  this.fitBounds(bounds)
   return this
+}
+
+$L.Map.prototype.$setMapDraggable = function (draggable) {
+  draggable
+    ? this.dragging.enable()
+    : this.dragging.disable()
 }

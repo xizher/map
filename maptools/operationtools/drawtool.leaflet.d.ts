@@ -66,7 +66,7 @@ export declare class DrawOperations {
    * 设置绘图类型
    * @param drawtype 绘图类型
    */
-  setDrawType (drawtype: 'Point' | 'Line' | 'Polyline' | 'Polygon' | 'Rectangle') : void 
+  setDrawType (drawtype: 'Point' | 'Line' | 'Polyline' | 'Polygon' | 'Rectangle' | 'RectangleQuickly') : void 
 
   /** 清除绘图状态 */
   clearDrawType () : void
@@ -120,6 +120,6 @@ export declare class DrawTool extends BaseTool {
    * 设置绘图类型
    * @param drawtype 绘图类型
    */
-  setDrawType (drawtype: 'Point' | 'Line' | 'Polyline' | 'Polygon' | 'Rectangle') : void
+  setDrawType (drawtype: 'Point' | 'Line' | 'Polyline' | 'Polygon' | 'Rectangle' | 'RectangleQuickly') : this
 
 }

@@ -1,18 +1,24 @@
 import { DrawTool } from './drawtool.leaflet'
 
-export class ZoomTool extends DrawTool {
+/** 拉框放大 */
+export class ZoomInWithFrameTool extends DrawTool {
   constructor (map, drawer) {
     super(map, drawer)
-    this.setDrawType('Rectangle')
 
     Object.assign(this, {
-      onDrawCreated (event) {
+      onToolActived () {
+        this.setDrawType('RectangleQuickly')
+      },
+
+      onDrawCreated (event) { // 重写
         this.drawer.clear()
         this.map.$setExtent(event.path)
       }
     })
 
   }
+
+
   // // 无法重写 ？？？
   // onDrawCreated (event) {
   //   console.log(event)
