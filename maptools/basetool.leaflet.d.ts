@@ -1,9 +1,9 @@
-import { CustomEvent } from '../../ext/customevent'
+import { EventManager } from '../../ext/customevent'
 import { $Map } from '../mapinit/mapinit.leaflet';
 import $L from 'leaflet'
 
 /** 基础工具类 */
-export class BaseTool extends CustomEvent {
+export class BaseTool extends EventManager {
 
   /**
    * 构造函数

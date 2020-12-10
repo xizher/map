@@ -5,37 +5,18 @@ const MAP_CURSOR_TYPE = {
   WAIT: 'wait'
 }
 
-const _mapDom = Symbol('mapDom')
-
-const _hasCursorType = Symbol('hasCursorType')
-
 /**
  * 地图鼠标样式类
  */
 export class MapCursor {
 
+  /** @type {HTMLElement} */
+  #mapDom = null
+
   constructor (mapDivId) {
 
-    this[_mapDom] = document.getElementById(mapDivId)
-
-    /**
-     * 检查鼠标类型是否存在
-     * @param {string} type 鼠标类型
-     */
-    this[_hasCursorType] = type => {
-      const cursorType = type.toUpperCase()
-      for (const key in MAP_CURSOR_TYPE) {
-        if (cursorType === key) {
-          return true
-        }
-      }
-      return false
-    }
-
-    const init = () => {
-      this[_mapDom].style.cursor = 'default'
-    }
-    init()
+    this.#mapDom = document.getElementById(mapDivId)
+    this.#mapDom.style.cursor = 'default'
   }
 
   /**
@@ -43,6 +24,14 @@ export class MapCursor {
    * @param {string} type 鼠标类型
    */
   setCursor (type) {
-    this[_mapDom].style.cursor = MAP_CURSOR_TYPE[this[_hasCursorType](type) ? type.toUpperCase() : 'DEFAULT']
+    let hasType = false
+    const cursorType = type.toUpperCase()
+    for (const key in MAP_CURSOR_TYPE) {
+      if (cursorType === key) {
+        hasType = true
+        break
+      }
+    }
+    this.#mapDom.style.cursor = MAP_CURSOR_TYPE[hasType ? type.toUpperCase() : 'DEFAULT']
   }
 }

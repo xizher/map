@@ -1,19 +1,27 @@
-import { ref, watch } from 'vue'
 import $L from 'leaflet'
+import { EventManager } from '../../ext/customevent'
+import { Layer } from '../layer/layer.leaflet'
 
-const _map = Symbol('map')
-const _layerGroup = Symbol('layerGroup')
-const _basemapItems = Symbol('basemapItems')
-const _activedKey = Symbol('activedKey')
-const _visible = Symbol('visible')
-const _tempActivedKey = Symbol('tempActivedKey')
-const _options = Symbol('options')
+/** leaflet 地图控制类 */
+export class Basemap extends EventManager {
 
+  //#region 私有变量
 
-/**
- * leaflet 地图控制类
- */
-export class Basemap {
+  /** @type {import('../mapinit/mapinit.leaflet').$Map} */
+  #map = null
+
+  #selectedKey = -1 // 当前记过的底图项
+
+  #visible = true // 当前底图图层组是否可见
+
+  /** @type {Array<{ layer: Layer, name: string, type: string, alias: string, key: string }>} */
+  #basemapItems = [] // 底图图层
+
+  #options = {} // 配置信息
+
+  /** @type {Layer} */
+  #layerGroup = null // 底图图层组
+  //#endregion
 
   /**
    * @param {import('../mapinit/mapinit.leaflet').$Map} map leaflet地图对象
@@ -23,90 +31,82 @@ export class Basemap {
    * @param {Array} options.layers 可选的底图项
    */
   constructor (map, options) {
+    super()
 
-    //#region 私有方法（伪）
-    /**
-     * leaflet地图对象
-     * @type {import('../mapinit/mapinit.leaflet').$Map}
-     */
-    this[_map] = map
+    this.#map = map
+    this.#options = options
+    this.#layerGroup = new Layer(new $L.LayerGroup()).addTo(this.#map)
+    this.#basemapItems = []
 
-    /** 底图配置项 */
-    this[_options] = options
-
-    /** 底图图层组 */
-    this[_layerGroup] = new $L.LayerGroup().addTo(this[_map])
-
-    /**
-     * 底图图层
-     * @type {Array<{
-     *  layer: $L.Layer
-     *  name: string
-     *  type: string
-     *  alias: string
-     *  key: string
-     * }>}
-     */
-    this[_basemapItems] = []
-
-    /** 当前激活的底图项的Key值 */
-    this[_activedKey] = ref(-1)
-
-    /** 底图可见性 */
-    this[_visible] = ref(true)
-    this[_tempActivedKey] = -1 // 底图激活项Key值缓存
-    //#endregion
-
-    //#region 初始化
-    const init = async () => {
-
-      // 监听_activedKey值变化，并根据变化值更新底图
-      watch(this[_activedKey], val => {
-        this[_layerGroup].clearLayers()
-        if (val !== -1) {
-          const index = this[_basemapItems].findIndex(item => item.key === val)
-          this[_basemapItems][index].layer.addTo(this[_layerGroup])
-        }
-      })
-
-      // 监听_visible变化以更新底图的可见性
-      watch(this[_visible], val => {
-        if (val) {
-          this[_activedKey].value = this[_tempActivedKey]
-        } else {
-          this[_tempActivedKey] = this[_activedKey].value
-          this[_activedKey].value = -1
-        }
-      })
+    ;(async () => {
 
       // 初始化底图服务
-      const { layers } = options
+      const { layers } = this.#options
       for (let i = 0; i < layers.length ?? 0; i++) {
         const lyr = layers[i]
         if (lyr.type === 'tileLayer') {
-          this[_basemapItems].push({
-            // layer: await createTileLayer(lyr.url, lyr.options),
-            layer: await $L.tileLayer(lyr.url, lyr.options || {}),
+          this.#basemapItems.push({
+            layer: new Layer(await $L.tileLayer(lyr.url, lyr.options || {})).addTo(this.#layerGroup),
             ...lyr,
           })
         }
       }
-      this[_activedKey].value = options.activedKey
-    }
-    init()
-    //#endregion
+      this.clearBasemap()
+      this.#selectedKey = this.#options.activedKey
+      const index = this.#basemapItems.findIndex(item => item.key === this.#selectedKey)
+      this.fire('loaded', { basemapItems: this.#basemapItems, selectedIndex: index })
+    })()
   }
 
+  //#region 白盒测试
+  _test () {
+    this._map = this.#map
+    this._basemapItems = this.#basemapItems
+    this._layerGroup = this.#layerGroup
+    this._options = this.#options
+    this._selectedKey = this.#selectedKey
+    this._visible = this.#visible
+  }
+  //#endregion
+
   setBasemap (key) {
-    this[_activedKey].value = key
+    this.#selectedKey = key
+    this.#basemapItems.forEach(item => {
+      if (item.key === key) {
+        item.layer.setVisible(true)
+      } else {
+        item.layer.setVisible(false)
+      }
+    })
+  }
+
+  setBasemapByIndex (index) {
+    this.#basemapItems.forEach((item, i) => {
+      if (i === index) {
+        item.layer.setVisible(true)
+      } else {
+        item.layer.setVisible(false)
+      }
+    })
   }
 
   clearBasemap () {
-    this[_activedKey].value = -1
+    this.#basemapItems.forEach(item => {
+      item.layer.setVisible(false)
+    })
   }
 
   setVisible (visible) {
-    this[_visible].value = visible
+    this.#visible = visible
+    this.#layerGroup.setVisible(visible)
+  }
+
+  getBasemapItems () {
+    return this.#basemapItems.map(item => ({
+      name: item.name,
+      key: item.key,
+      alias: item.alias
+    }))
   }
 
 }

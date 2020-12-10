@@ -5,27 +5,15 @@ import { DrawTool } from './drawtool.leaflet'
 export class ZoomInRect extends DrawTool {
   constructor (map, drawer) {
     super(map, drawer)
-
-    Object.assign(this, {
-      onToolActived () {
-        this.setDrawType('RectangleQuickly')
-      },
-
-      onDrawCreated (event) { // 重写
-        this.getDrawer().clear()
-        this.getMap().$setExtent(event.path)
-      }
-    })
-
+  }
+  onToolActived () {
+    this.setDrawType('RectangleQuickly')
   }
 
-
-  // // 无法重写 ？？？
-  // onDrawCreated (event) {
-  //   console.log(event)
-  //   this.drawer.clear()
-  //   // this.map.$setExtent()
-  // }
+  onDrawCreated (event) { // 重写
+    this.getDrawer().clear()
+    this.getMap().$setExtent(event.path)
+  }
 
 }
 
@@ -34,18 +22,15 @@ export class ZoomInRect extends DrawTool {
 export class ZoomInTool extends BaseTool {
   constructor (map) {
     super(map, true)
+  }
 
-    Object.assign(this, {
-      onToolActived () {
-        this.getMap().zoomIn(1)
-      },
+  onToolActived () {
+    this.getMap().zoomIn(1)
+  }
 
-      onDrawCreated (event) { // 重写
-        this.getDrawer().clear()
-        this.getMap().$setExtent(event.path)
-      }
-    })
-
+  onDrawCreated (event) { // 重写
+    this.getDrawer().clear()
+    this.getMap().$setExtent(event.path)
   }
 
 }
@@ -54,18 +39,14 @@ export class ZoomInTool extends BaseTool {
 export class ZoomOutTool extends BaseTool {
   constructor (map) {
     super(map, true)
-
-    Object.assign(this, {
-      onToolActived () {
-        this.getMap().zoomOut(1)
-      },
-
-      onDrawCreated (event) { // 重写
-        this.getDrawer().clear()
-        this.getMap().$setExtent(event.path)
-      }
-    })
-
   }
 
+  onToolActived () {
+    this.getMap().zoomOut(1)
+  }
+
+  onDrawCreated (event) { // 重写
+    this.getDrawer().clear()
+    this.getMap().$setExtent(event.path)
+  }
 }

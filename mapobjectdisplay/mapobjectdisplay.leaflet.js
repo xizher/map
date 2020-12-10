@@ -1,55 +1,41 @@
 import $L from 'leaflet'
 import { cloneLayer } from '../maputils/maputils.leaflet'
 
-const _map = Symbol('map')
-const _layerGroup = Symbol('layerGroup')
-const _graphicGroup = Symbol('graphicGroup')
-const _highlightGroup = Symbol('highlightGroup')
-const _tempGraphicGroup = Symbol('tempGraphicGroup')
-
 export class MapObjectDisplay {
+
+  /** @type {import('../mapinit/mapinit.leaflet').$Map} */
+  #map = null // 地图对象
+
+  /** @type {$L.LayerGroup} */
+  #layerGroup = null // 地图要素显示图层组
+
+  /** @type {$L.LayerGroup} */
+  #graphicGroup = null // 普通图形图层组
+
+  /** @type {$L.LayerGroup} */
+  #highlightGroup = null // 高亮图形图层组
+
+  /** @type {$L.LayerGroup} */
+  #tempGraphicGroup = null // 过渡图形图层组（如绘制过程中的图形状态示意）
+
   constructor (map) {
 
-    /**
-     * leaflet地图对象
-     * @type {$L.Map}
-     */
-    this[_map] = map
-
-    /**
-     * 地图要素显示图层组
-     * @type {$L.LayerGroup}
-     */
-    this[_layerGroup] = new $L.LayerGroup().addTo(this[_map])
-
-    /**
-     * 普通图形图层组
-     * @type {$L.LayerGroup}
-     */
-    this[_graphicGroup] = new $L.LayerGroup().addTo(this[_layerGroup])
-
-    /**
-     * 高亮图形图层组
-     * @type {$L.LayerGroup}
-     */
-    this[_highlightGroup] = new $L.LayerGroup().addTo(this[_layerGroup])
-
-    /**
-     * 过渡图形图层组（如绘制过程中的图形状态示意）
-     * @type {$L.LayerGroup}
-     */
-    this[_tempGraphicGroup] = new $L.LayerGroup().addTo(this[_layerGroup])
+    this.#map = map
+    this.#layerGroup = new $L.LayerGroup().addTo(this.#map)
+    this.#graphicGroup = new $L.LayerGroup().addTo(this.#layerGroup)
+    this.#highlightGroup = new $L.LayerGroup().addTo(this.#layerGroup)
+    this.#tempGraphicGroup = new $L.LayerGroup().addTo(this.#layerGroup)
 
   }
 
   //#region 公有方法
   setTempGraphic (path) {
     this.clearTempGraphic()
-    path.addTo(this[_tempGraphicGroup])
+    path.addTo(this.#tempGraphicGroup)
   }
 
   clearTempGraphic () {
-    this[_tempGraphicGroup].clearLayers()
+    this.#tempGraphicGroup.clearLayers()
   }
 
   /**
@@ -58,8 +44,8 @@ export class MapObjectDisplay {
    */
   addGraphic (path) {
     Array.isArray(path)
-      ? path.forEach(p => p.addTo(this[_graphicGroup]))
-      : path.addTo(this[_graphicGroup])
+      ? path.forEach(p => p.addTo(this.#graphicGroup))
+      : path.addTo(this.#graphicGroup)
   }
 
   /**
@@ -78,8 +64,8 @@ export class MapObjectDisplay {
   removeGraphic (path) {
     if (path) {
       Array.isArray(path)
-        ? path.forEach(p => this[_graphicGroup].removeLayer(p))
-        : this[_graphicGroup].removeLayer(path)
+        ? path.forEach(p => this.#graphicGroup.removeLayer(p))
+        : this.#graphicGroup.removeLayer(path)
     } else {
       this.clearGraphics()
     }
@@ -87,7 +73,7 @@ export class MapObjectDisplay {
 
   /** 清除所有普通图形 */
   clearGraphics () {
-    this[_graphicGroup].clearLayers()
+    this.#graphicGroup.clearLayers()
   }
 
   /**
@@ -96,8 +82,8 @@ export class MapObjectDisplay {
    */
   addHighlight (path) {
     Array.isArray(path)
-      ? path.forEach(p => p.addTo(this[_highlightGroup]))
-      : path.addTo(this[_highlightGroup])
+      ? path.forEach(p => p.addTo(this.#highlightGroup))
+      : path.addTo(this.#highlightGroup)
   }
 
   /**
@@ -116,8 +102,8 @@ export class MapObjectDisplay {
   removeHighlight (path) {
     if (path) {
       Array.isArray(path)
-        ? path.forEach(p => this[_highlightGroup].removeLayer(p))
-        : this[_highlightGroup].removeLayer(path)
+        ? path.forEach(p => this.#highlightGroup.removeLayer(p))
+        : this.#highlightGroup.removeLayer(path)
     } else {
       this.clearHighlight()
     }
@@ -125,14 +111,14 @@ export class MapObjectDisplay {
 
   /** 清空高亮图形 */
   clearHighlight () {
-    this[_highlightGroup].clearLayers()
+    this.#highlightGroup.clearLayers()
   }
 
   /** 清除所有图形 */
   clear () {
-    this[_tempGraphicGroup].clearLayers()
-    this[_graphicGroup].clearLayers()
-    this[_highlightGroup].clearLayers()
+    this.#tempGraphicGroup.clearLayers()
+    this.#graphicGroup.clearLayers()
+    this.#highlightGroup.clearLayers()
   }
 
   /**

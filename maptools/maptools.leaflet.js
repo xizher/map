@@ -1,49 +1,60 @@
+import { EventManager } from '../../ext/customevent'
+import { BaseTool } from './basetool.leaflet'
+import { BackHomeTool } from './operationtools/backhome.leaflet'
 import { DrawTool, Drawer } from './operationtools/drawtool.leaflet'
 import { ZoomInTool, ZoomInRect, ZoomOutTool } from './operationtools/zoomtool.leaflet'
 
-const _map = Symbol('map')
-const _drawer = Symbol('drawer')
-const _mapOperations = Symbol('mapOperations')
-const _preMapTool = Symbol('preMapTool')
+export class MapTools extends EventManager {
 
-export class MapTools {
+  /** @type {import('../mapinit/mapinit.leaflet').$Map} */
+  #map = null
 
-  constructor (map) {
+  /** @type {Drawer} */
+  #drawer = null // 绘图器
 
-    /**
-     * leaflet 地图对象
-     * @type {import('leaflet').Map}
-     */
-    this[_map] = map
+  /** @type {Object<string, import('./basetool.leaflet').BaseTool>} */
+  #mapOperations = null // 地图操作工具集
+
+  #preMapTool = '' // 上一个非一次性工具
+
+  #options = {}
+
+  constructor (map, options) {
+    super()
+
+    this.#map = map
+
+    this.#options = options
 
     /**
      * 绘图器
      */
-    this[_drawer] = new Drawer(this[_map])
+    this.#drawer = new Drawer(this.#map)
 
 
-    // _map.off('dblclick') // 取消leaflet默认双击放大事件
-    /**
-     * 地图操作工具集
-     * @type {Array<import('../maptools/basetool.leaflet').BaseTool>}
-     */
-    this[_mapOperations] = {
-      drawpoint: new DrawTool(this[_map], this[_drawer]),
-      drawline: new DrawTool(this[_map], this[_drawer]),
-      drawpolyline: new DrawTool(this[_map], this[_drawer]),
-      drawpolygon: new DrawTool(this[_map], this[_drawer]),
-      drawrectangle: new DrawTool(this[_map], this[_drawer]),
-      drawrectanglequickly: new DrawTool(this[_map], this[_drawer]),
-      zoominrect: new ZoomInRect(this[_map], this[_drawer]),
-      zoomin: new ZoomInTool(this[_map]),
-      zoomout: new ZoomOutTool(this[_map]),
+    this.#mapOperations = {
+      '': new BaseTool(this.#map),
+      'draw-point': new DrawTool(this.#map, this.#drawer),
+      'draw-line': new DrawTool(this.#map, this.#drawer),
+      'draw-polyline': new DrawTool(this.#map, this.#drawer),
+      'draw-polygon': new DrawTool(this.#map, this.#drawer),
+      'draw-rectangle': new DrawTool(this.#map, this.#drawer),
+      'draw-rectangle-quickly': new DrawTool(this.#map, this.#drawer),
+      'zoom-in-rect': new ZoomInRect(this.#map, this.#drawer),
+      'zoom-in': new ZoomInTool(this.#map),
+      'zoom-out': new ZoomOutTool(this.#map),
+      'back-home': new BackHomeTool(this.#map),
     }
 
-    this[_preMapTool] = ''
+    this.#preMapTool = ''
 
     /** 初始化 */
     const init = () => {
-      this[_map].off('dblclick')
+      this.#map.off('dblclick')
+
+      this.#mapOperations['zoom-in-rect'].getDrawer().setDrawingStyle({
+        color: '#000', fillColor: '#000'
+      })
     }
     init()
   }
@@ -53,30 +64,40 @@ export class MapTools {
    * @param {string} mapTool
    */
   setMapTool (mapTool) {
-    this[_drawer].clear()
-    for (const key in this[_mapOperations]) {
+    this.fire('tool-changed', { toolName: mapTool })
+    this.#drawer.clear()
+    for (const key in this.#mapOperations) {
       if (key === mapTool.toLowerCase()) {
         if (key.startsWith('draw')) {
-          this[_mapOperations][key].active().setDrawType(key.split('draw')[1])
+          this.#mapOperations[key].active().setDrawType(key.split('draw')[1])
         } else {
-          this[_mapOperations][key].active()
+          this.#mapOperations[key].active()
         }
-        if (this[_mapOperations][key].isOnce()) {
-          this.setMapTool(this[_preMapTool])
+        if (this.#mapOperations[key].isOnce()) {
+          this.setMapTool(this.#preMapTool)
         } else {
-          this[_preMapTool] = key
+          this.#preMapTool = key
         }
       } else {
-        this[_mapOperations][key].deactive()
+        this.#mapOperations[key].deactive()
       }
     }
   }
 
   clearMapTool () {
-    for (const key in this[_mapOperations]) {
-      this[_drawer].clear()
-      this[_mapOperations][key].deactive()
+    this.fire('tool-changed', { toolName: '' })
+    for (const key in this.#mapOperations) {
+      this.#drawer.clear()
+      this.#mapOperations[key].deactive()
     }
+  }
+
+  getTools () {
+    return this.#options.items.filter(item => item.visible)
+  }
+
+  getEnabled() {
+    return this.#options.enabled
   }
 
 }

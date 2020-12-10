@@ -1,22 +1,14 @@
 import { BaseTool } from '../basetool.leaflet'
 import $L from 'leaflet'
 
-const _drawTool = Symbol('drawTool')
-const _drawer = Symbol('drawer')
-const _drawOperation = Symbol('drawOperation')
-const _mapObjectDisplay = Symbol('mapObjectDisplay')
-const _drawedStyle = Symbol('drawStyle')
-const _drawingStyle = Symbol('drawingStyle')
-
 export class DrawOperations {
 
-  /**
-   *
-   * @param {DrawTool} drawTool
-   */
+  /** @type {DrawTool} */
+  #drawTool = null
+
   constructor (drawTool) {
 
-    this[_drawTool] = drawTool
+    this.#drawTool = drawTool
 
     /**
      *
@@ -24,15 +16,15 @@ export class DrawOperations {
      */
     this.setDrawType = drawtype => {
       this.clearDrawType()
-      drawtype && DrawOperations[drawtype.toUpperCase()](this[_drawTool])
+      drawtype && DrawOperations[drawtype.toUpperCase()](this.#drawTool)
     }
 
     this.clearDrawType = () => {
-      this[_drawTool].getMap().off('dblclick')
-      this[_drawTool].getMap().off('click')
-      this[_drawTool].getMap().off('mousedown')
-      this[_drawTool].getMap().off('mousemove')
-      this[_drawTool].getMap().off('mouseup')
+      this.#drawTool.getMap().off('dblclick')
+      this.#drawTool.getMap().off('click')
+      this.#drawTool.getMap().off('mousedown')
+      this.#drawTool.getMap().off('mousemove')
+      this.#drawTool.getMap().off('mouseup')
     }
 
   }
@@ -234,25 +226,29 @@ export class DrawOperations {
 }
 
 export class DrawTool extends BaseTool {
+
+  /** @type {Drawer} */
+  #drawer = null
+
+  /** @type {DrawOperations} */
+  #drawOpreation = null
+
   constructor (map, drawer) {
     super(map)
 
-    /**
-     * @type {Drawer}
-     */
-    this[_drawer] = drawer
+    this.#drawer = drawer
 
-    this[_drawOperation] = new DrawOperations(this)
+    this.#drawOpreation = new DrawOperations(this)
 
 
   }
 
   getDrawer () {
-    return this[_drawer]
+    return this.#drawer
   }
 
   setDrawType (drawtype) {
-    this[_drawOperation].setDrawType(drawtype)
+    this.#drawOpreation.setDrawType(drawtype)
     return this
   }
 }
@@ -260,20 +256,27 @@ export class DrawTool extends BaseTool {
 /** 绘图控制器 */
 export class Drawer {
 
+  /** @type {import('../../mapobjectdisplay/mapobjectdisplay.leaflet').MapObjectDisplay} */
+  #mapObjectDisplay = null
+
+  #drawedStyle = null
+
+  #drawingStyle = null
+
   constructor (map) {
 
     /**
      * @type {import('../../mapobjectdisplay/mapobjectdisplay.leaflet').MapObjectDisplay}
      */
-    this[_mapObjectDisplay] = map.owner.mapObjectDisplay
+    this.#mapObjectDisplay = map.owner.getMapObjectDisplay()
 
     /** 图元绘制完成后的样式 */
-    this[_drawedStyle] = {
+    this.#drawedStyle = {
       color: '#ff0000',
     }
 
     /** 图元绘制中的样式 */
-    this[_drawingStyle] = {
+    this.#drawingStyle = {
       color: '#ff0000',
       opacity: 0.5,
     }
@@ -281,35 +284,35 @@ export class Drawer {
 
 
   add (path) {
-    this[_mapObjectDisplay].clearTempGraphic(path)
-    path = this[_mapObjectDisplay].parseGraphic(path, this[_drawedStyle])
-    this[_mapObjectDisplay].addGraphic(path)
+    this.#mapObjectDisplay.clearTempGraphic(path)
+    path = this.#mapObjectDisplay.parseGraphic(path, this.#drawedStyle)
+    this.#mapObjectDisplay.addGraphic(path)
   }
 
   set (path) {
-    this[_mapObjectDisplay].clearTempGraphic(path)
-    this[_mapObjectDisplay].setGraphic(path)
+    this.#mapObjectDisplay.clearTempGraphic(path)
+    this.#mapObjectDisplay.setGraphic(path)
   }
 
   setTempGraphic (path) {
-    path = this[_mapObjectDisplay].parseGraphic(path, this[_drawingStyle])
-    this[_mapObjectDisplay].setTempGraphic(path)
+    path = this.#mapObjectDisplay.parseGraphic(path, this.#drawingStyle)
+    this.#mapObjectDisplay.setTempGraphic(path)
   }
 
   remove (path) {
-    this[_mapObjectDisplay].removeGraphic(path)
+    this.#mapObjectDisplay.removeGraphic(path)
   }
 
   clear () {
-    this[_mapObjectDisplay].clearGraphics()
+    this.#mapObjectDisplay.clearGraphics()
   }
 
   setDrawedStyle (style) {
-    Object.assign(this[_drawedStyle], style)
+    Object.assign(this.#drawedStyle, style)
   }
 
   setDrawingStyle (style) {
-    Object.assign(this[_drawingStyle], style)
+    Object.assign(this.#drawingStyle, style)
   }
 
 }

@@ -1,20 +1,42 @@
 import $L from 'leaflet'
+import { reactive, ref, toRef, watch } from 'vue'
 import { Basemap } from '../basemap/basemap.leaflet'
 import { MapCursor } from '../mapcursor/mapcursor.leaflet'
 import { MapObjectDisplay } from '../mapobjectdisplay/mapobjectdisplay.leaflet'
 import { MapTools } from '../maptools/maptools.leaflet'
-
+import { DynamicMapLayer } from 'esri-leaflet'
 
 export class WebMap {
+
+  #divId = ''
+
+  #mapConfig = {}
+
+  #mapOptions = {}
+
+  /** @type {Basemap} */
+  #basemap = null
+
+  /** @type {MapCursor} */
+  #mapCursor = null
+
+  /** @type {MapObjectDisplay} */
+  #mapObjectDisplay = null
+
+  /** @type {MapTools} */
+  #mapTools = null
+
   constructor (divId, mapConfig) {
 
+
     //#region 私有变量
-    const _divId = divId
+    this.#divId = divId
+    this.#mapConfig = mapConfig
     /**
      * 地图配置项
      * @type {$L.MapOptions}
      */
-    const _mapOptions = {
+    this.#mapOptions = {
       preferCanvas: true, // 是否应在Canvas渲染器上渲染路径，否则使用SVG
       //#region 控制
       attributionControl: false, // 是否将归因控件添加到地图
@@ -64,59 +86,101 @@ export class WebMap {
       bounceAtZoomLimits	:	true,	// 如果不希望地图缩放超过最小/最大缩放，然后在捏合缩放时反弹，则设置为 false。
       //#endregion
     }
-    Object.assign(_mapOptions, mapConfig.mapOptions) // 地图配置初始化
+    Object.assign(this.#mapOptions, this.#mapConfig.mapOptions) // 地图配置初始化
 
     //#endregion
 
-    //#region 共有变量
-    /**
-     * leaflet 地图（Map）对象
-     * @type {import('./mapinit.leaflet').$Map}
-     */
-    this.map = $L.map(_divId, _mapOptions)
-    Object.assign(this.map, { owner: this }) // 对象的循环引用
+    //#region 响应式 Vue
+    const loaded = ref(false)
+    const basemap = reactive({
+      basemapItems: [],
+      selectedIndex: -1,
+      visible: true
+    })
+    watch(toRef(basemap, 'selectedIndex'), index => {
+      if (index !== -1) {
+        basemap.visible = true
+        this.#basemap.setBasemapByIndex(index)
+      }
+    })
+    watch(toRef(basemap, 'visible'), visible => {
+      basemap.selectedIndex = -1
+      this.#basemap.setVisible(visible)
+    })
 
-    /**
-     * 底图控制对象
-     * @type {Basemap}
-     */
-    this.basemap = null
+    const mapTools = reactive({
+      items: [],
+      activedName: '',
+      selectItemByName: name => {
+        this.#mapTools.setMapTool(name)
+      },
+    })
 
-    /**
-     * 地图鼠标样式控制对象
-     * @type {MapCursor}
-     */
-    this.mapCursor = null
-
-    /**
-     * 地图工具对象
-     * @type {MapTools}
-     */
-    this.mapTools = null
-    /**
-     * 地图工具对象
-     * @type {MapObjectDisplay}
-     */
-    this.mapObjectDisplay = null
+    this.useHooks = () => ({
+      loaded,
+      basemap,
+      mapTools,
+    })
     //#endregion
 
-    //#region 地图对象初始化
-    const init = async () => {
-      this.basemap = new Basemap(this.map, mapConfig.basemapOptions)
-      this.mapObjectDisplay = new MapObjectDisplay(this.map)
-      this.mapCursor = new MapCursor(divId)
-      this.mapTools = new MapTools(this.map)
 
-
-    }
-    init()
-    //#endregion
 
   }
 
+  initMap () {
+    const { basemap, loaded, mapTools } = this.useHooks()
 
-}
+    this.map = $L.map(this.#divId, this.#mapOptions)
+    Object.assign(this.map, { owner: this }) // 对象的循环引用
 
-export async function mapInit (divId, mapConf) {
-  window.webMap = new WebMap(divId, mapConf)
+    this.#mapCursor = new MapCursor(this.#divId)
+
+    this.#basemap = new Basemap(this.map, this.#mapConfig.basemapOptions)
+    this.#basemap.on('loaded', event => {
+      basemap.basemapItems.push(...event.basemapItems)
+      basemap.selectedIndex = event.selectedIndex
+    })
+
+    this.#mapObjectDisplay = new MapObjectDisplay(this.map)
+
+    this.#mapTools = new MapTools(this.map, this.#mapConfig.mapToolsOptions)
+    mapTools.items = this.#mapTools.getTools()
+    this.#mapTools.on('tool-changed', event => {
+      mapTools.activedName = event.toolName
+    })
+
+    loaded.value = true
+
+    // var map = L.map('map').setView([38.83, -98.5], 7);
+    // L.esri.basemapLayer('Gray').addTo(map);
+
+    let url = 'http://192.168.65.130:6080/arcgis/rest/services/TEST/HB_S_BOUA/MapServer'
+
+    new L.esri.DynamicMapLayer({
+      url: url,
+      opacity: 5,
+      // useCors: false,
+    }).addTo(this.map)
+
+  }
+
+  getMapObjectDisplay () {
+    return this.#mapObjectDisplay
+  }
+
+  gotoHomeExtent () {
+    this.map.setView(this.#mapOptions.center, this.#mapOptions.zoom)
+    return this
+  }
+
+  setHomeExtent (center, zoom) {
+    this.#mapOptions.center = center
+    this.#mapOptions.zoom = zoom
+    return this
+  }
+
+  setHomeExtentAndGoto (center, zoom) {
+    this.setHomeExtent(center, zoom).gotoHomeExtent()
+  }
+
 }

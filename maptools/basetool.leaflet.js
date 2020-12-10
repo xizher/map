@@ -1,61 +1,57 @@
-import { CustomEvent } from '../../ext/customevent'
+import { EventManager } from '../../ext/customevent'
 
-const _map = Symbol('map')
-const _actived = Symbol('actived')
-const _once = Symbol('once')
+export class BaseTool extends EventManager {
 
-export class BaseTool extends CustomEvent {
+  /**
+   * leaflet 地图对象
+   * @type {import('../mapinit/mapinit.leaflet').$Map}
+   */
+  #map = null
+  #actived = false // 工具激活状态
+  #once = false
 
   constructor (map, once = false) {
     super()
 
-    /**
-     * leaflet 地图对象
-     * @type {import('../mapinit/mapinit.leaflet').$Map}
-     */
-    this[_map] = map
-    // console.log(this)
+    this.#map = map
 
-    /**
-     * 工具激活状态
-     */
-    this[_actived] = false
+    this.#actived = false
 
-    this[_once] = once
+    this.#once = once
 
     // 初始化
     const init = () => {
       this.on('tool-actived', () => {
-        if (this[_actived]) {
+        if (this.#actived) {
           this.onToolActived()
-          if (this[_once]) { // 取消一次性工具激活状态
+          if (this.#once) { // 取消一次性工具激活状态
             this.deactive()
           }
         }
       })
       this.on('tool-deactived', () => {
-        if (this[_actived]) {
-          this[_actived] = false
+        if (this.#actived) {
+          this.#actived = false
           this.onToolDeactive()
         }
       })
       this.on('draw-actived', event => {
-        if (this[_actived]) {
+        if (this.#actived) {
           this.onDrawActived(event)
         }
       })
       this.on('draw-moving', event => {
-        if (this[_actived]) {
+        if (this.#actived) {
           this.onDrawMoving(event)
         }
       })
       this.on('draw-created', event => {
-        if (this[_actived]) {
+        if (this.#actived) {
           this.onDrawCreated(event)
         }
       })
       this.on('tool-clear', () => {
-        if (this[_actived]) {
+        if (this.#actived) {
           this.onToolDeactive()
         }
       })
@@ -64,28 +60,28 @@ export class BaseTool extends CustomEvent {
   }
 
   getActived () {
-    return this[_actived]
+    return this.#actived
   }
 
   getMap () {
-    return this[_map]
+    return this.#map
   }
 
   isOnce () {
-    return this[_once]
+    return this.#once
   }
 
   active () {
-    if (this[_actived]) { // 已处于激活状态
+    if (this.#actived) { // 已处于激活状态
       return
     }
-    this[_actived] = true
+    this.#actived = true
     this.fire('tool-actived')
     return this
   }
 
   deactive () {
-    if (!_actived) { // 已处于失活状态
+    if (!this.#actived) { // 已处于失活状态
       return
     }
     this.fire('tool-deactived')

@@ -1,3 +1,5 @@
+import { EventManager } from '../../ext/customevent';
+import { Layer } from '../layer/layer.leaflet';
 import { $Map } from '../mapinit/mapinit.leaflet';
 
 /** 底图项 */
@@ -25,7 +27,7 @@ interface BasemapOptions {
 }
 
 /** 地图的底图控制器 */
-export declare class Basemap {
+export declare class Basemap extends EventManager {
 
   /**
    * 构造函数
@@ -39,6 +41,12 @@ export declare class Basemap {
    * @param key 底图的key值
    */
   setBasemap (key: number | string) : void
+  
+  /**
+   * 根据索引值切换对应的底图项
+   * @param index 索引值
+   */
+  setBasemapByIndex (index: number) : void
 
   /** 清空底图项 */
   clearBasemap () : void
@@ -48,4 +56,9 @@ export declare class Basemap {
    * @param visible 底图的可见性
    */
   setVisible (visible: boolean) : void
+
+  /** 获取可选地图项 */
+  getBasemapItems () : Array<{ name: string, alias: string, key: string }>
+
+  on (name: 'loaded', fn: (events: { name: string, origin: Object }) => void, scope?: Object): Function
 }
