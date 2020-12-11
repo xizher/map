@@ -4,7 +4,7 @@ import { Basemap } from '../basemap/basemap.leaflet'
 import { MapCursor } from '../mapcursor/mapcursor.leaflet'
 import { MapObjectDisplay } from '../mapobjectdisplay/mapobjectdisplay.leaflet'
 import { MapTools } from '../maptools/maptools.leaflet'
-import { DynamicMapLayer } from 'esri-leaflet'
+import { OperationLayers } from '../operationlayers/operationlayers.leaflet'
 
 export class WebMap {
 
@@ -25,6 +25,9 @@ export class WebMap {
 
   /** @type {MapTools} */
   #mapTools = null
+
+  /** @type {OperationLayers} */
+  #operationLayers = null
 
   constructor (divId, mapConfig) {
 
@@ -139,6 +142,8 @@ export class WebMap {
     this.#basemap.on('loaded', event => {
       basemap.basemapItems.push(...event.basemapItems)
       basemap.selectedIndex = event.selectedIndex
+
+      this.#operationLayers = new OperationLayers(this.map, this.#mapConfig.operationLayersOptions)
     })
 
     this.#mapObjectDisplay = new MapObjectDisplay(this.map)
@@ -149,18 +154,19 @@ export class WebMap {
       mapTools.activedName = event.toolName
     })
 
+
     loaded.value = true
 
     // var map = L.map('map').setView([38.83, -98.5], 7);
     // L.esri.basemapLayer('Gray').addTo(map);
 
-    let url = 'http://192.168.65.130:6080/arcgis/rest/services/TEST/HB_S_BOUA/MapServer'
+    // let url = 'http://192.168.65.130:6080/arcgis/rest/services/TEST/HB_S_BOUA/MapServer'
 
-    new L.esri.DynamicMapLayer({
-      url: url,
-      opacity: 5,
-      // useCors: false,
-    }).addTo(this.map)
+    // new $L.esri.DynamicMapLayer({
+    //   url: url,
+    //   opacity: 1,
+    //   // useCors: false,
+    // }).addTo(this.map)
 
   }
 
