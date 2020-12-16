@@ -9,13 +9,15 @@ const modules = [
   'esri/Map',
   'esri/views/MapView',
   'esri/layers/WebTileLayer',
+  'esri/layers/ImageryLayer',
 ]
 
 function initEsriClasses (classes) {
   const [
     ArcGISMap,
     MapView,
-    WebTileLayer
+    WebTileLayer,
+    ImageryLayer,
   ] = classes
   window.esri = {
     Map: ArcGISMap,
@@ -23,7 +25,8 @@ function initEsriClasses (classes) {
       MapView
     },
     layers: {
-      WebTileLayer
+      WebTileLayer,
+      ImageryLayer,
     }
   }
 }

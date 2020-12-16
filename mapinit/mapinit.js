@@ -76,6 +76,21 @@ export class WebMap {
         mouseLocation.y = y
       })
     }, err => console.warn(err))
+
+    const layer = new esri.layers.ImageryLayer(this.#options.layersServer['经度地带性分异规律演示图层'])
+    layer.renderer = {
+      type: 'unique-value',
+      field: 'Value',
+      defaultSymbol: { type: 'simple-fill' },
+      uniqueValueInfos: this.#options.globeLand30Colormap.map(item => ({
+        value: item.value,
+        symbol: {
+          type: 'simple-fill',
+          color: item.color
+        }
+      }))
+    }
+    this.#map.add(layer)
   }
 
 }
