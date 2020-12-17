@@ -1,22 +1,48 @@
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
+import { Basemap } from '../basemap/basemap'
+import { MapCursor } from '../mapcursor/mapcursor'
+import { deepExtent } from '../../ext/js.utils'
 
 export class WebMap {
 
-  /**
+  //#region 私有变量
+
+  /** 地图对象
    * @type {import('esri/Map')}
    */
   #map = null
 
-  /**
+  /** 视图对象
    * @type {import('esri/views/MapView')}
    */
   #view = null
 
+  /** 地图容器Dom结点Id */
   #divId = ''
 
+  /** 地图鼠标样式控制类
+   * @type {MapCursor}
+   */
+  #mapCursor = null
+
+  /** 底图控制类
+   * @type {Basemap}
+   */
+  #basemap = null
+
+  /** 白盒测试 */
+  __test__ () {
+    this._map = this.#map
+    this._view = this.#view
+    this._divId = this.#divId
+    this._mapCursor = this.#mapCursor
+    this._basemap = this.#basemap
+  }
+
+  /** 配置项 */
   #options = {
     viewOptions: {
-      center: [-118, 34],
+      center: [0, 0],
       zoom: 1,
       ui: {
         components: [
@@ -26,38 +52,74 @@ export class WebMap {
         ]
       },
       constraints: {
-        minZoom: 3
+        rotationEnabled: false
       }
     }
   }
 
-  constructor (divId, options) {
-    this.#divId = divId
-    Object.assign(this.#options, options)
+  //#endregion
 
+  //#region 私有方法
+
+  #init () {
     const loaded = ref(false)
     const mouseLocation = reactive({
       lon: 0, lat: 0, x: 0, y: 0
     })
+    const cursor = ref('')
+    this.cursor = cursor
     this.useHooks = () => {
       return {
         loaded,
-        mouseLocation
+        mouseLocation,
+        cursor
       }
     }
   }
 
-  init () {
+  #hooksInit() {
+    const { cursor } = this.useHooks()
+    watch(cursor, val => {
+      this.#mapCursor.setCursor(val)
+    })
+    cursor.value = this.#mapCursor.getCursor()
+  }
+
+  //#endregion
+
+  constructor (divId, options) {
+    this.#divId = divId
+    deepExtent(true, this.#options, options)
+    this.#init()
+  }
+
+
+  //#region 公有方法
+
+  /** 加载 */
+  load () {
     const { loaded, mouseLocation } = this.useHooks()
 
-    this.#map = new esri.Map({
-      basemap: {
-        baseLayers: [new esri.layers.WebTileLayer({
-          opacity: 0.5,
-          urlTemplate: 'http://192.168.65.130:6080/arcgis/rest/services/GLC30/WorldLand/MapServer/tile/{level}/{row}/{col}'
-        })]
-      }
-    })
+    this.#map = new esri.Map()
+    this.#map.owner = this
+
+    const layer = new esri.layers.ImageryLayer(this.#options.layersServer['经度地带性分异规律演示图层'])
+    layer.renderer = {
+      type: 'unique-value',
+      field: 'Value',
+      defaultSymbol: { type: 'simple-fill' },
+      uniqueValueInfos: this.#options.globeLand30Colormap.map(item => ({
+        value: item.value,
+        symbol: {
+          type: 'simple-fill',
+          color: item.color
+        }
+      }))
+    }
+    this.#map.add(layer)
+
+    this.#mapCursor = new MapCursor(this.#divId)
+    this.#basemap = new Basemap(this.#map, this.#options.basemapOptions)
 
     this.#view = new esri.views.MapView({
       container: this.#divId,
@@ -77,20 +139,9 @@ export class WebMap {
       })
     }, err => console.warn(err))
 
-    const layer = new esri.layers.ImageryLayer(this.#options.layersServer['经度地带性分异规律演示图层'])
-    layer.renderer = {
-      type: 'unique-value',
-      field: 'Value',
-      defaultSymbol: { type: 'simple-fill' },
-      uniqueValueInfos: this.#options.globeLand30Colormap.map(item => ({
-        value: item.value,
-        symbol: {
-          type: 'simple-fill',
-          color: item.color
-        }
-      }))
-    }
-    this.#map.add(layer)
+    this.#hooksInit()
   }
+
+  //#endregion
 
 }
