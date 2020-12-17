@@ -2,20 +2,24 @@ import { reactive, ref, watch } from 'vue'
 import { Basemap } from '../basemap/basemap'
 import { MapCursor } from '../mapcursor/mapcursor'
 import { deepExtent } from '../../ext/js.utils'
+import { esri } from '../loadmodules/loadmodules'
+import { MapElementDisplay } from '../mapelementdisplay/mapelementdisplay'
 
 export class WebMap {
 
-  //#region 私有变量
+  //#region 私有属性
 
   /** 地图对象
    * @type {import('esri/Map')}
    */
   #map = null
+  get map () { return this.#map }
 
   /** 视图对象
    * @type {import('esri/views/MapView')}
    */
   #view = null
+  get view () { return this.#view }
 
   /** 地图容器Dom结点Id */
   #divId = ''
@@ -24,20 +28,19 @@ export class WebMap {
    * @type {MapCursor}
    */
   #mapCursor = null
+  get mapCursor () { return this.#mapCursor }
 
   /** 底图控制类
    * @type {Basemap}
    */
   #basemap = null
+  get basemap () { return this.#basemap }
 
-  /** 白盒测试 */
-  __test__ () {
-    this._map = this.#map
-    this._view = this.#view
-    this._divId = this.#divId
-    this._mapCursor = this.#mapCursor
-    this._basemap = this.#basemap
-  }
+  /** 图元控制类
+   * @type {MapElementDisplay}
+   */
+  #mapElementDisplay = null
+  get mapElementDisplay () { return this.#mapElementDisplay }
 
   /** 配置项 */
   #options = {
@@ -67,7 +70,6 @@ export class WebMap {
       lon: 0, lat: 0, x: 0, y: 0
     })
     const cursor = ref('')
-    this.cursor = cursor
     this.useHooks = () => {
       return {
         loaded,
@@ -82,7 +84,7 @@ export class WebMap {
     watch(cursor, val => {
       this.#mapCursor.setCursor(val)
     })
-    cursor.value = this.#mapCursor.getCursor()
+    cursor.value = this.#mapCursor.cursor
   }
 
   //#endregion
@@ -99,7 +101,6 @@ export class WebMap {
   /** 加载 */
   load () {
     const { loaded, mouseLocation } = this.useHooks()
-
     this.#map = new esri.Map()
     this.#map.owner = this
 
@@ -118,14 +119,12 @@ export class WebMap {
     }
     this.#map.add(layer)
 
-    this.#mapCursor = new MapCursor(this.#divId)
-    this.#basemap = new Basemap(this.#map, this.#options.basemapOptions)
-
     this.#view = new esri.views.MapView({
       container: this.#divId,
       map: this.#map,
       ...this.#options.viewOptions
     })
+    this.#view.owner = this
 
     this.#view.when(() => {
       loaded.value = true
@@ -138,6 +137,21 @@ export class WebMap {
         mouseLocation.y = y
       })
     }, err => console.warn(err))
+
+    this.#mapCursor = new MapCursor(this.#divId)
+    this.#basemap = new Basemap(this.#map, this.#options.basemapOptions)
+    this.#mapElementDisplay = new MapElementDisplay(this.#map, this.#view)
+    const test = {
+      type: 'polygon',
+      rings: [[ // first ring
+        [0, 30],
+        [30, 30],
+        [30, 0],
+        [0, 30] // same as first vertex
+      ]]
+    }
+    const g = this.#mapElementDisplay.parseGraphics(test)
+    this.#mapElementDisplay.addTempGraphics(g)
 
     this.#hooksInit()
   }

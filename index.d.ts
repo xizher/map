@@ -1,4 +1,2 @@
-export * from './loadModules'
+export * from './loadmodules/loadmodules'
 export * from './mapinit/mapinit'
-
-export declare function loadArcGISJsApiModules () : Promise<void>

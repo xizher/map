@@ -1,7 +1,12 @@
 import ArcGISMap from 'esri/Map'
+import MapView from 'esri/views/MapView'
 import { ReactiveEffect, Ref } from 'vue'
 
 export class $Map extends ArcGISMap {
+  owner: WebMap
+}
+
+export class $View extends MapView {
   owner: WebMap
 }
 

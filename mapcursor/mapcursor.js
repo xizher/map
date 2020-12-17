@@ -10,7 +10,7 @@ const MAP_CURSOR_TYPE = {
  */
 export class MapCursor {
 
-  //#region 私有变量
+  //#region 私有属性
 
   /** 地图容器Dom结点Id
    */
@@ -25,12 +25,10 @@ export class MapCursor {
    * @type {'default' | 'pan' | 'panning' | 'wait'}
    */
   #cursor = 'default'
-
-  /** 白盒测试 */
-  __test__ () {
-    this._mapDivId = this.#mapDivId
-    this._mapDom = this.#mapDom
-    this._cursor = this.#cursor
+  get cursor () { return this.#cursor }
+  set cursor (val) {
+    this.setCursor(val)
+    this.#cursor = val
   }
   //#endregion
 
@@ -50,14 +48,6 @@ export class MapCursor {
 
 
   //#region 公有方法
-
-  /**
-   * 获得当前鼠标样式标签
-   * @returns {'default' | 'pan' | 'panning' | 'wait'} 当前鼠标样式标签
-   */
-  getCursor () {
-    return this.#cursor
-  }
 
   /**
    * 设置鼠标样式

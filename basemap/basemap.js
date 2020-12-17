@@ -1,3 +1,5 @@
+import { esri } from '../loadmodules/loadmodules'
+
 export class Basemap {
 
   //#region 私有变量
