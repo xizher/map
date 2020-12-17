@@ -158,6 +158,12 @@ export class MapElementDisplay {
     return this
   }
 
+  clear () {
+    this
+      .clearGraphics()
+      .clearTempGraphics()
+  }
+
   /**
    * 解析图元
    * @param {import('esri/geometry/Geometry') | Array<import('esri/geometry/Geometry')>} geometrys 图元

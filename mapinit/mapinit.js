@@ -49,9 +49,7 @@ export class WebMap {
       zoom: 1,
       ui: {
         components: [
-          'zoom',
-          'compass',
-          'attribution',
+          /* 'zoom', 'compass', 'attribution' */
         ]
       },
       constraints: {
