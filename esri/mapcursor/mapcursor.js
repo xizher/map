@@ -10,20 +10,41 @@ const MAP_CURSOR_TYPE = {
  */
 export class MapCursor {
 
-  /** @type {HTMLElement} */
+  //#region 私有属性
+
+  /** 地图容器Dom结点Id
+   */
+  #mapDivId = ''
+
+  /** 地图容器Dom结点
+   * @type {HTMLElement}
+   */
   #mapDom = null
 
-  constructor (mapDivId) {
+  /** 鼠标样式标签
+   * @type {'default' | 'pan' | 'panning' | 'wait'}
+   */
+  #cursor = 'default'
+  get cursor () { return this.#cursor }
+  set cursor (val) {
+    this.#setCursor(val)
+    this.#cursor = val
+  }
+  //#endregion
 
-    this.#mapDom = document.getElementById(mapDivId)
-    this.#mapDom.style.cursor = 'default'
+  //#region 私有方式
+
+  #init () {
+    this.#mapDom = document.getElementById(this.#mapDivId)
+    this.#setCursor(this.#cursor)
   }
 
   /**
    * 设置鼠标样式
-   * @param {string} type 鼠标类型
+   * @param {'default' | 'pan' | 'panning' | 'wait'} type 鼠标类型
+   * @returns {MapCursor} this
    */
-  setCursor (type) {
+  #setCursor (type) {
     let hasType = false
     const cursorType = type.toUpperCase()
     for (const key in MAP_CURSOR_TYPE) {
@@ -33,5 +54,20 @@ export class MapCursor {
       }
     }
     this.#mapDom.style.cursor = MAP_CURSOR_TYPE[hasType ? type.toUpperCase() : 'DEFAULT']
+    return this
   }
+
+  //#endregion
+
+  constructor (mapDivId) {
+    this.#mapDivId = mapDivId
+    this.#init()
+  }
+
+
+  //#region 公有方法
+
+
+  //#endregion
+
 }
