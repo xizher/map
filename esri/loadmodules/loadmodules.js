@@ -1,5 +1,5 @@
 import { loadModules } from 'esri-loader'
-import { apiConfig } from '../../config/app.conf'
+import { apiConfig } from '../../../config/app.conf'
 
 const modules = [
   'esri/Map',

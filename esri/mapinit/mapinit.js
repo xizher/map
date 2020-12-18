@@ -1,7 +1,7 @@
 import { reactive, ref, watch } from 'vue'
 import { Basemap } from '../basemap/basemap'
 import { MapCursor } from '../mapcursor/mapcursor'
-import { deepExtent } from '../../ext/js.utils'
+import { deepExtent } from '../../../ext/js.utils'
 import { esri } from '../loadmodules/loadmodules'
 import { MapElementDisplay } from '../mapelementdisplay/mapelementdisplay'
 import { Hawkeye } from '../hawkeye/hawkeye'

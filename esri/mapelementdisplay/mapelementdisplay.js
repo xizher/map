@@ -1,4 +1,4 @@
-import { deepExtent } from '../../ext/js.utils'
+import { deepExtent } from '../../../ext/js.utils'
 import { esri } from '../loadmodules/loadmodules'
 
 export class MapElementDisplay {
