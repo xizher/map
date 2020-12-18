@@ -8,23 +8,27 @@ export class Basemap {
    * @type {import('../mapinit/mapinit').$Map}
    */
   #map = null
+  get map () { return this.#map }
 
   /** 可选的底图图层项
    * @type {Array<{ layer: import('esri/layers/Layer'), name: string, type: string, alias: string }>}
    */
   #basemapItems = {}
+  get basemapItems () { return this.#basemapItems }
 
   /** 配置信息
    * @type {{visible: boolean, layers: Array<{ key: number, alias: string, name: string, type: string, options: Object }>, selectedKey: number}}
    */
   #options = {}
+  get options () { return this.#options }
 
-  // 白盒测试
-  __test__ () {
-    this._map = this.#map
-    this._basemapItems = this.#basemapItems
-    this._options = this.#options
+  #selectedKey = -1
+  get selectedKey () { return this.#selectedKey }
+  set selectedKey (val) {
+    this.#selectedKey = val
+    this.#setBasemap(val)
   }
+
 
   //#endregion
 
@@ -38,8 +42,26 @@ export class Basemap {
         this.#basemapItems[lyr.key] = { layer, ...lyr }
       }
     })
-    this.setBasemap (this.#options.selectedKey)
-    this.setVisible (this.#options.visible)
+    this.#selectedKey = this.#options.selectedKey
+    this.#setBasemap(this.#selectedKey)
+    this.setVisible(this.#options.visible)
+    return this
+  }
+
+  /**
+   * 切换底图项
+   * @param {number} key 底图项key值
+   * @returns {Basemap} this
+   */
+  #setBasemap (key) {
+    this.setVisible (true)
+    if (this.#basemapItems[key]) {
+      this.#map.basemap = {
+        baseLayers: [
+          this.#basemapItems[key].layer
+        ]
+      }
+    }
     return this
   }
 
@@ -52,23 +74,6 @@ export class Basemap {
   }
 
   //#region 公有方法
-
-  /**
-   * 切换底图项
-   * @param {number} key 底图项key值
-   * @returns {Basemap} this
-   */
-  setBasemap (key) {
-    this.setVisible (true)
-    if (this.#basemapItems[key]) {
-      this.#map.basemap = {
-        baseLayers: [
-          this.#basemapItems[key].layer
-        ]
-      }
-    }
-    return this
-  }
 
   /**
    * 设置底图可见性

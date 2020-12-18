@@ -177,7 +177,7 @@ export class MapElementDisplay {
       symbol = this.#defaultSymbols.simpleMarker.clone()
     } else if (type === 'polyline') {
       symbol = this.#defaultSymbols.simpleLine.clone()
-    } else if (type === 'polygon') {
+    } else if (type === 'polygon' || type === 'extent') {
       symbol = this.#defaultSymbols.simpleFill.clone()
     }
     deepExtent(true, symbol, symbolOptions)

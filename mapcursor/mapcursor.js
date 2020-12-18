@@ -27,7 +27,7 @@ export class MapCursor {
   #cursor = 'default'
   get cursor () { return this.#cursor }
   set cursor (val) {
-    this.setCursor(val)
+    this.#setCursor(val)
     this.#cursor = val
   }
   //#endregion
@@ -36,7 +36,25 @@ export class MapCursor {
 
   #init () {
     this.#mapDom = document.getElementById(this.#mapDivId)
-    this.setCursor(this.#cursor)
+    this.#setCursor(this.#cursor)
+  }
+
+  /**
+   * 设置鼠标样式
+   * @param {'default' | 'pan' | 'panning' | 'wait'} type 鼠标类型
+   * @returns {MapCursor} this
+   */
+  #setCursor (type) {
+    let hasType = false
+    const cursorType = type.toUpperCase()
+    for (const key in MAP_CURSOR_TYPE) {
+      if (cursorType === key) {
+        hasType = true
+        break
+      }
+    }
+    this.#mapDom.style.cursor = MAP_CURSOR_TYPE[hasType ? type.toUpperCase() : 'DEFAULT']
+    return this
   }
 
   //#endregion
@@ -49,23 +67,6 @@ export class MapCursor {
 
   //#region 公有方法
 
-  /**
-   * 设置鼠标样式
-   * @param {'default' | 'pan' | 'panning' | 'wait'} type 鼠标类型
-   * @returns {MapCursor} this
-   */
-  setCursor (type) {
-    let hasType = false
-    const cursorType = type.toUpperCase()
-    for (const key in MAP_CURSOR_TYPE) {
-      if (cursorType === key) {
-        hasType = true
-        break
-      }
-    }
-    this.#mapDom.style.cursor = MAP_CURSOR_TYPE[hasType ? type.toUpperCase() : 'DEFAULT']
-    return this
-  }
 
   //#endregion
 

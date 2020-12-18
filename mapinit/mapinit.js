@@ -4,6 +4,7 @@ import { MapCursor } from '../mapcursor/mapcursor'
 import { deepExtent } from '../../ext/js.utils'
 import { esri } from '../loadmodules/loadmodules'
 import { MapElementDisplay } from '../mapelementdisplay/mapelementdisplay'
+import { Hawkeye } from '../hawkeye/hawkeye'
 
 export class WebMap {
 
@@ -42,6 +43,12 @@ export class WebMap {
   #mapElementDisplay = null
   get mapElementDisplay () { return this.#mapElementDisplay }
 
+  /** 鹰眼
+   * @type {Hawkeye}
+   */
+  #hawkeye = null
+  get hawkeye () { return this.#hawkeye }
+
   /** 配置项 */
   #options = {
     viewOptions: {
@@ -68,21 +75,23 @@ export class WebMap {
       lon: 0, lat: 0, x: 0, y: 0
     })
     const cursor = ref('')
+    const basemapSelectedKey = ref(-1)
     this.useHooks = () => {
       return {
         loaded,
         mouseLocation,
-        cursor
+        cursor,
+        basemapSelectedKey
       }
     }
   }
 
   #hooksInit() {
-    const { cursor } = this.useHooks()
-    watch(cursor, val => {
-      this.#mapCursor.setCursor(val)
-    })
+    const { cursor, basemapSelectedKey } = this.useHooks()
     cursor.value = this.#mapCursor.cursor
+    watch(cursor, val => this.#mapCursor.cursor = val)
+    basemapSelectedKey.value = this.#basemap.selectedKey
+    watch(basemapSelectedKey, val => this.#basemap.selectedKey = val)
   }
 
   //#endregion
@@ -98,7 +107,6 @@ export class WebMap {
 
   /** 加载 */
   load () {
-    const { loaded, mouseLocation } = this.useHooks()
     this.#map = new esri.Map()
     this.#map.owner = this
 
@@ -124,21 +132,10 @@ export class WebMap {
     })
     this.#view.owner = this
 
-    this.#view.when(() => {
-      loaded.value = true
-
-      this.#view.on('pointer-move', event => {
-        const { longitude, latitude, x, y } = this.#view.toMap(event)
-        mouseLocation.lon = longitude
-        mouseLocation.lat = latitude
-        mouseLocation.x = x
-        mouseLocation.y = y
-      })
-    }, err => console.warn(err))
-
     this.#mapCursor = new MapCursor(this.#divId)
     this.#basemap = new Basemap(this.#map, this.#options.basemapOptions)
     this.#mapElementDisplay = new MapElementDisplay(this.#map, this.#view)
+    this.#hawkeye = new Hawkeye(this.#view, this.#options.hawkeyeOptions)
     const test = {
       type: 'polygon',
       rings: [[ // first ring
@@ -152,6 +149,18 @@ export class WebMap {
     this.#mapElementDisplay.addTempGraphics(g)
 
     this.#hooksInit()
+    this.#view.when(() => {
+      const { loaded, mouseLocation } = this.useHooks()
+      loaded.value = true
+
+      this.#view.on('pointer-move', event => {
+        const { longitude, latitude, x, y } = this.#view.toMap(event)
+        mouseLocation.lon = longitude
+        mouseLocation.lat = latitude
+        mouseLocation.x = x
+        mouseLocation.y = y
+      })
+    }, err => console.warn(err))
   }
 
   //#endregion
