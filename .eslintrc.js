@@ -15,7 +15,7 @@ module.exports = {
     'sourceType': 'module'
   },
   'globals': {
-    'esri': 'readonly'
+    'process': true
   },
   'plugins': [
     // '@typescript-eslint'
