@@ -45,12 +45,6 @@ export class WebMap {
    */
   useHooks () : {
     loaded: Ref<boolean>
-    mouseLocation: ReactiveEffect<{
-      lon: number
-      lat: number
-      x: number
-      y: number
-    }>
     cursor: Ref<string>
     basemapSelectedKey: Ref<number>
   }

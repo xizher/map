@@ -1,13 +1,13 @@
 import $L from 'leaflet'
-import { EventManager } from '../../ext/customevent'
-import { Layer } from '../layer/layer.leaflet'
+import { EventManager } from '../../../ext/customevent'
+import { Layer } from '../../layer/layer.leaflet'
 
 /** leaflet 地图控制类 */
 export class Basemap extends EventManager {
 
   //#region 私有变量
 
-  /** @type {import('../mapinit/mapinit.leaflet').$Map} */
+  /** @type {import('../../mapinit/mapinit.leaflet').$Map} */
   #map = null
 
   #selectedKey = -1 // 当前记过的底图项
@@ -24,7 +24,7 @@ export class Basemap extends EventManager {
   //#endregion
 
   /**
-   * @param {import('../mapinit/mapinit.leaflet').$Map} map leaflet地图对象
+   * @param {import('../../mapinit/mapinit.leaflet').$Map} map leaflet地图对象
    * @param {Object} options 配置项
    * @param {boolean} options.visible 底图可见性
    * @param {number} options.activedKey 当前激活的底图项的Key值

@@ -1,5 +1,5 @@
 import $L from 'leaflet'
-import { EventManager } from '../../ext/customevent'
+import { EventManager } from '../../../ext/customevent'
 import { Layer } from '../layer/layer.leaflet'
 import { useAxios } from '../../hooks/useAjax'
 

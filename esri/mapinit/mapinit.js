@@ -1,4 +1,4 @@
-import { reactive, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { Basemap } from '../basemap/basemap'
 import { MapCursor } from '../mapcursor/mapcursor'
 import { deepExtent } from '../../../ext/js.utils'
@@ -9,18 +9,17 @@ import { Hawkeye } from '../hawkeye/hawkeye'
 export class WebMap {
 
   //#region 私有属性
+  // **********************************************************************
 
   /** 地图对象
    * @type {import('esri/Map')}
    */
   #map = null
-  get map () { return this.#map }
 
   /** 视图对象
    * @type {import('esri/views/MapView')}
    */
   #view = null
-  get view () { return this.#view }
 
   /** 地图容器Dom结点Id */
   #divId = ''
@@ -29,25 +28,21 @@ export class WebMap {
    * @type {MapCursor}
    */
   #mapCursor = null
-  get mapCursor () { return this.#mapCursor }
 
   /** 底图控制类
    * @type {Basemap}
    */
   #basemap = null
-  get basemap () { return this.#basemap }
 
   /** 图元控制类
    * @type {MapElementDisplay}
    */
   #mapElementDisplay = null
-  get mapElementDisplay () { return this.#mapElementDisplay }
 
   /** 鹰眼
    * @type {Hawkeye}
    */
   #hawkeye = null
-  get hawkeye () { return this.#hawkeye }
 
   /** 配置项 */
   #options = {
@@ -65,51 +60,58 @@ export class WebMap {
     }
   }
 
+  /**
+   * 钩子
+   * @type {{
+   *  loaded: import('vue').Ref<boolean>
+   *  cursor: import('vue').Ref<string>
+   *  basemapSelectedKey: import('vue').Ref<number>
+   * }}
+   */
+  #hooks = {}
+
+  // ______________________________________________________________________
   //#endregion
 
-  //#region 私有方法
-
-  #init () {
-    const loaded = ref(false)
-    const mouseLocation = reactive({
-      lon: 0, lat: 0, x: 0, y: 0
-    })
-    const cursor = ref('')
-    const basemapSelectedKey = ref(-1)
-    this.useHooks = () => {
-      return {
-        loaded,
-        mouseLocation,
-        cursor,
-        basemapSelectedKey
-      }
-    }
-  }
-
-  #hooksInit() {
-    const { cursor, basemapSelectedKey } = this.useHooks()
-    cursor.value = this.#mapCursor.cursor
-    watch(cursor, val => this.#mapCursor.cursor = val)
-    basemapSelectedKey.value = this.#basemap.selectedKey
-    watch(basemapSelectedKey, val => this.#basemap.selectedKey = val)
-  }
-
+  //#region noly getter
+  // **********************************************************************
+  get map () { return this.#map }
+  get view () { return this.#view }
+  get mapCursor () { return this.#mapCursor }
+  get basemap () { return this.#basemap }
+  get mapElementDisplay () { return this.#mapElementDisplay }
+  get hawkeye () { return this.#hawkeye }
+  // ______________________________________________________________________
   //#endregion
 
+  //#region getter and setter
+  // **********************************************************************
+
+  // ______________________________________________________________________
+  //#endregion
+
+  //#region 构造函数
+  // **********************************************************************
   constructor (divId, options) {
     this.#divId = divId
     deepExtent(true, this.#options, options)
     this.#init()
   }
+  // ______________________________________________________________________
+  //#endregion
 
+  //#region 私有方法
+  // **********************************************************************
 
-  //#region 公有方法
+  #init () {
+    Object.assign(this.#hooks, {
+      loaded: ref(false)
+    })
+  }
 
-  /** 加载 */
-  load () {
+  #loadMap () {
     this.#map = new esri.Map()
     this.#map.owner = this
-
     const layer = new esri.layers.ImageryLayer(this.#options.layersServer['经度地带性分异规律演示图层'])
     layer.renderer = {
       type: 'unique-value',
@@ -124,45 +126,62 @@ export class WebMap {
       }))
     }
     this.#map.add(layer)
+  }
 
+  #loadMapView () {
     this.#view = new esri.views.MapView({
       container: this.#divId,
       map: this.#map,
       ...this.#options.viewOptions
     })
     this.#view.owner = this
+  }
 
+  #loadMapCursor () {
     this.#mapCursor = new MapCursor(this.#divId)
+    Object.assign(this.#hooks, {
+      cursor: ref(this.#mapCursor.cursor)
+    })
+    watch(this.#hooks.cursor, val => this.#mapCursor.cursor = val)
+  }
+
+  #loadBasemap () {
     this.#basemap = new Basemap(this.#map, this.#options.basemapOptions)
+    Object.assign(this.#hooks, {
+      basemapSelectedKey: ref(this.#basemap.selectedKey)
+    })
+    watch(this.#hooks.basemapSelectedKey, val => this.#basemap.selectedKey = val)
+  }
+
+  // ______________________________________________________________________
+  //#endregion
+
+
+
+  //#region 公有方法
+  // **********************************************************************
+
+  /** 加载 */
+  load () {
+    this.#loadMap()
+    this.#loadMapView()
+
+    this.#loadMapCursor()
+    this.#loadBasemap()
     this.#mapElementDisplay = new MapElementDisplay(this.#map, this.#view)
     this.#hawkeye = new Hawkeye(this.#view, this.#options.hawkeyeOptions)
-    const test = {
-      type: 'polygon',
-      rings: [[ // first ring
-        [0, 30],
-        [30, 30],
-        [30, 0],
-        [0, 30] // same as first vertex
-      ]]
-    }
-    const g = this.#mapElementDisplay.parseGraphics(test)
-    this.#mapElementDisplay.addTempGraphics(g)
 
-    this.#hooksInit()
     this.#view.when(() => {
-      const { loaded, mouseLocation } = this.useHooks()
+      const { loaded } = this.#hooks
       loaded.value = true
-
-      this.#view.on('pointer-move', event => {
-        const { longitude, latitude, x, y } = this.#view.toMap(event)
-        mouseLocation.lon = longitude
-        mouseLocation.lat = latitude
-        mouseLocation.x = x
-        mouseLocation.y = y
-      })
     }, err => console.warn(err))
   }
 
+  useHooks () {
+    return this.#hooks
+  }
+
+  // ______________________________________________________________________
   //#endregion
 
 }

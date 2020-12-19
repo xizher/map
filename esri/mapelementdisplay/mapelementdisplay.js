@@ -3,6 +3,7 @@ import { esri } from '../loadmodules/loadmodules'
 
 export class MapElementDisplay {
   //#region 私有属性
+  // **********************************************************************
 
   /**
    * 地图对象
@@ -50,23 +51,31 @@ export class MapElementDisplay {
     })
   }
 
+  // ______________________________________________________________________
   //#endregion
 
-  //#region 私有方法
-
-  /** 初始化 */
-  #init () {
-    this.#map.layers.add(this.#graphicsLayer)
-  }
-  //#endregion
-
+  //#region 构造函数
+  // **********************************************************************
   constructor (map, view) {
     this.#map = map
     this.#view = view
     this.#init()
   }
+  // ______________________________________________________________________
+  //#endregion
+
+  //#region 私有方法
+  // **********************************************************************
+
+  /** 初始化 */
+  #init () {
+    this.#map.layers.add(this.#graphicsLayer)
+  }
+  // ______________________________________________________________________
+  //#endregion
 
   //#region 公有方法
+  // **********************************************************************
 
   /**
    * 添加图元（保留已有图元基础上）
@@ -162,6 +171,7 @@ export class MapElementDisplay {
     this
       .clearGraphics()
       .clearTempGraphics()
+    return this
   }
 
   /**
@@ -188,5 +198,6 @@ export class MapElementDisplay {
     }
   }
 
+  // ______________________________________________________________________
   //#endregion
 }

@@ -3,36 +3,57 @@ import { esri } from '../loadmodules/loadmodules'
 export class Basemap {
 
   //#region 私有变量
+  // **********************************************************************
 
   /** 地图对象
    * @type {import('../mapinit/mapinit').$Map}
    */
   #map = null
-  get map () { return this.#map }
 
   /** 可选的底图图层项
    * @type {Array<{ layer: import('esri/layers/Layer'), name: string, type: string, alias: string }>}
    */
   #basemapItems = {}
-  get basemapItems () { return this.#basemapItems }
 
   /** 配置信息
    * @type {{visible: boolean, layers: Array<{ key: number, alias: string, name: string, type: string, options: Object }>, selectedKey: number}}
    */
   #options = {}
-  get options () { return this.#options }
 
   #selectedKey = -1
+
+  // ______________________________________________________________________
+  //#endregion
+
+  //#region only getter
+  // **********************************************************************
+  get map () { return this.#map }
+  get basemapItems () { return this.#basemapItems }
+  // ______________________________________________________________________
+  //#endregion
+
+  //#region getter and setter
+  // **********************************************************************
   get selectedKey () { return this.#selectedKey }
   set selectedKey (val) {
     this.#selectedKey = val
     this.#setBasemap(val)
   }
+  // ______________________________________________________________________
+  //#endregion
 
-
+  //#region 构造函数
+  // **********************************************************************
+  constructor (map, options) {
+    this.#map = map
+    this.#options = options
+    this.#init()
+  }
+  // ______________________________________________________________________
   //#endregion
 
   //#region 私有方法
+  // **********************************************************************
 
   /** 初始化 */
   #init () {
@@ -65,15 +86,12 @@ export class Basemap {
     return this
   }
 
+  // ______________________________________________________________________
   //#endregion
 
-  constructor (map, options) {
-    this.#map = map
-    this.#options = options
-    this.#init()
-  }
 
   //#region 公有方法
+  // **********************************************************************
 
   /**
    * 设置底图可见性
@@ -88,6 +106,7 @@ export class Basemap {
     return this
   }
 
+  // ______________________________________________________________________
   //#endregion
 
 }

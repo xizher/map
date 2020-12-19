@@ -13,7 +13,7 @@ import SimpleFillSymbol from 'esri/symbols/SimpleFillSymbol'
 /**
  * 加载ESRI模块
  */
-export function loadEsriModules () : Promise<void>
+export declare function loadEsriModules () : Promise<void>
 
 /**
  * ESRI模块库

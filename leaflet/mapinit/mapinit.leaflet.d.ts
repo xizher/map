@@ -1,6 +1,6 @@
 import $L from 'leaflet'
 import { Basemap } from '../basemap/basemap.leaflet'
-import { MapCursor } from '../mapcursor/mapcursor.leaflet'
+import { MapCursor } from '../leaflet/mapcursor/mapcursor.leaflet'
 import { MapObjectDisplay } from '../mapobjectdisplay/mapobjectdisplay.leaflet'
 import { MapTools } from '../maptools/maptools.leaflet'
 
