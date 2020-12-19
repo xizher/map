@@ -6,7 +6,7 @@ export declare class Basemap {
   /** 地图对象（readonly） */
   get map () : $Map
   /** 可选底图项（readonly） */
-  get basemapItems () : Array<{
+  get basemapItems () : Object<string, {
     layer: import('esri/layers/Layer'),
     name: string,
     type: string,

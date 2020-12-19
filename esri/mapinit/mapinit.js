@@ -5,6 +5,8 @@ import { deepExtent } from '../../../ext/js.utils'
 import { esri } from '../loadmodules/loadmodules'
 import { MapElementDisplay } from '../mapelementdisplay/mapelementdisplay'
 import { Hawkeye } from '../hawkeye/hawkeye'
+import { MapTools } from '../maptools/maptools'
+import { initUtils } from '../esri.utils/esri.utils'
 
 export class WebMap {
 
@@ -44,6 +46,12 @@ export class WebMap {
    */
   #hawkeye = null
 
+  /**
+   * 地图工具集
+   * @type {MapTools}
+   */
+  #mapTools = null
+
   /** 配置项 */
   #options = {
     viewOptions: {
@@ -81,6 +89,7 @@ export class WebMap {
   get basemap () { return this.#basemap }
   get mapElementDisplay () { return this.#mapElementDisplay }
   get hawkeye () { return this.#hawkeye }
+  get mapTools () { return this.#mapTools }
   // ______________________________________________________________________
   //#endregion
 
@@ -165,11 +174,14 @@ export class WebMap {
   load () {
     this.#loadMap()
     this.#loadMapView()
-
+    initUtils(this.#map, this.#view)
     this.#loadMapCursor()
     this.#loadBasemap()
     this.#mapElementDisplay = new MapElementDisplay(this.#map, this.#view)
     this.#hawkeye = new Hawkeye(this.#view, this.#options.hawkeyeOptions)
+    this.#mapTools = new MapTools(this.#map, this.#view)
+
+    // this.#view.constraints.geometry = this.#map.basemap.baseLayers.getItemAt(0).fullExtent
 
     this.#view.when(() => {
       const { loaded } = this.#hooks

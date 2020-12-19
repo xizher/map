@@ -10,7 +10,11 @@ const modules = [
   'esri/layers/GraphicsLayer',
   'esri/symbols/SimpleMarkerSymbol',
   'esri/symbols/SimpleLineSymbol',
-  'esri/symbols/SimpleFillSymbol'
+  'esri/symbols/SimpleFillSymbol',
+  'esri/geometry/Polyline',
+  'esri/geometry/Polygon',
+  'esri/geometry/Circle',
+  'esri/geometry/Extent',
 ]
 
 export const esri = {}
