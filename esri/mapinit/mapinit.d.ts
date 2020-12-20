@@ -54,5 +54,15 @@ export class WebMap {
     cursor: Ref<string>
     basemapSelectedKey: Ref<number>
     activedMapToolKey: Ref<string>
+    pointerLocation: ReactiveEffect<{
+      lon: number
+      lat: number
+      x: number
+      y: number
+      lonInfo: string
+      latInfo: string
+      xInfo: string
+      yInfo: string
+    }>
   }
 }

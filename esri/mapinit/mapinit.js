@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { Basemap } from '../basemap/basemap'
 import { MapCursor } from '../mapcursor/mapcursor'
 import { deepExtent } from '../../../ext/js.utils'
@@ -75,6 +75,16 @@ export class WebMap {
    *  cursor: import('vue').Ref<string>
    *  basemapSelectedKey: import('vue').Ref<number>
    *  activedMapToolKey: import('vue').Ref<string>
+   *  pointerLocation: import('vue').ReactiveEffect<{
+   *    lon: number
+   *    lat: number
+   *    x: number
+   *    y: number
+   *    lonInfo: string
+   *    latInfo: string
+   *    xInfo: string
+   *    yInfo: string
+   *  }>
    * }}
    */
   #hooks = {}
@@ -145,6 +155,24 @@ export class WebMap {
       ...this.#options.viewOptions
     })
     this.#view.owner = this
+    const pointerLocation = reactive({
+      lon: 0, lat: 0, x: 0, y: 0,
+      lonInfo: computed(() => pointerLocation.lon.toFixed(9)),
+      latInfo: computed(() => pointerLocation.lat.toFixed(9)),
+      xInfo: computed(() => pointerLocation.x.toFixed(3)),
+      yInfo: computed(() => pointerLocation.y.toFixed(3)),
+    })
+    Object.assign(this.#hooks, {
+      pointerLocation,
+    })
+    this.#view.on('pointer-move', event => {
+      const point = this.#view.toMap(event)
+      const { x, y, longitude, latitude } = point
+      this.#hooks.pointerLocation.x = x
+      this.#hooks.pointerLocation.y = y
+      this.#hooks.pointerLocation.lon = longitude
+      this.#hooks.pointerLocation.lat = latitude
+    })
   }
 
   #loadMapCursor () {
