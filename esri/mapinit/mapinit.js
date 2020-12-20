@@ -74,6 +74,7 @@ export class WebMap {
    *  loaded: import('vue').Ref<boolean>
    *  cursor: import('vue').Ref<string>
    *  basemapSelectedKey: import('vue').Ref<number>
+   *  activedMapToolKey: import('vue').Ref<string>
    * }}
    */
   #hooks = {}
@@ -162,6 +163,16 @@ export class WebMap {
     watch(this.#hooks.basemapSelectedKey, val => this.#basemap.selectedKey = val)
   }
 
+  #loadMapTools () {
+    this.#mapTools = new MapTools(this.#map, this.#view)
+    Object.assign(this.#hooks, {
+      activedMapToolKey: ref(this.#mapTools.activedMapToolKey)
+    })
+    watch(this.#hooks.activedMapToolKey, val => {
+      this.#hooks.activedMapToolKey.value = this.#mapTools.setMapTool(val)
+    })
+  }
+
   // ______________________________________________________________________
   //#endregion
 
@@ -179,11 +190,12 @@ export class WebMap {
     this.#loadBasemap()
     this.#mapElementDisplay = new MapElementDisplay(this.#map, this.#view)
     this.#hawkeye = new Hawkeye(this.#view, this.#options.hawkeyeOptions)
-    this.#mapTools = new MapTools(this.#map, this.#view)
+    this.#loadMapTools()
 
     // this.#view.constraints.geometry = this.#map.basemap.baseLayers.getItemAt(0).fullExtent
 
     this.#view.when(() => {
+      this.#view.homeExtent = this.#view.extent
       const { loaded } = this.#hooks
       loaded.value = true
     }, err => console.warn(err))

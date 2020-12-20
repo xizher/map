@@ -1,10 +1,12 @@
 import ArcGISMap from 'esri/Map'
 import MapView from 'esri/views/MapView'
+import Geometry from 'esri/geometry/Geometry'
 import { ReactiveEffect, Ref } from 'vue'
 import { Basemap } from '../basemap/basemap'
 import { Hawkeye } from '../hawkeye/hawkeye'
 import { MapCursor } from '../mapcursor/mapcursor'
 import { MapElementDisplay } from '../mapelementdisplay/mapelementdisplay'
+import { MapTools } from '../maptools/maptools'
 
 export class $Map extends ArcGISMap {
   owner: WebMap
@@ -12,6 +14,7 @@ export class $Map extends ArcGISMap {
 
 export class $View extends MapView {
   owner: WebMap
+  homeExtent: Geometry
 }
 
 export class WebMap {
@@ -23,22 +26,25 @@ export class WebMap {
   constructor (divId: string, options: Object)
 
   /** 地图对象 */
-  map: $Map
+  get map () : $Map
 
   /** 视图对象 */
-  view: $View
+  get view () : $View
 
   /** 地图鼠标样式控制对象 */
-  mapCursor: MapCursor
+  get mapCursor () : MapCursor
 
   /** 底图控制对象 */
-  basemap: Basemap
+  get basemap () : Basemap
 
   /** 地图元素控制对象 */
-  mapElementDisplay: MapElementDisplay
+  get mapElementDisplay () : MapElementDisplay
 
   /** 鹰眼对象 */
-  hawkeye: Hawkeye
+  get hawkeye () : Hawkeye
+  
+  /** 地图工具对象 */
+  get mapTools () : MapTools
 
   /**
    * 地图状态钩子
@@ -47,5 +53,6 @@ export class WebMap {
     loaded: Ref<boolean>
     cursor: Ref<string>
     basemapSelectedKey: Ref<number>
+    activedMapToolKey: Ref<string>
   }
 }

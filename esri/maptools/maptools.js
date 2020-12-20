@@ -1,6 +1,6 @@
 import { Basetool } from './basetool'
 import { DrawTool } from './operationtools/drawtool/drawtool'
-import { ZoomIn, ZoomInRect, ZoomOut, ZoomOutRect } from './operationtools/zoomtool/zoomtool'
+import { ZoomHome, ZoomIn, ZoomInRect, ZoomOut, ZoomOutRect } from './operationtools/zoomtool/zoomtool'
 
 export class MapTools {
   //#region 私有属性
@@ -29,13 +29,18 @@ export class MapTools {
    */
   #preMapToolKey = ''
 
+  /**
+   * 当前激活状态的地图工具
+   */
+  #activedMapToolKey = ''
+
   // ______________________________________________________________________
   //#endregion
 
 
   //#region getter only
   // **********************************************************************
-
+  get activedMapToolKey () { return this.#activedMapToolKey }
   // ______________________________________________________________________
   //#endregion
 
@@ -75,8 +80,9 @@ export class MapTools {
       'zoom-out-rect': new ZoomOutRect(this.#map, this.#view),
       'zoom-in': new ZoomIn(this.#map, this.#view),
       'zoom-out': new ZoomOut(this.#map, this.#view),
+      'zoom-home': new ZoomHome(this.#map, this.#view),
     }
-    this.setMapTool('draw-polygon')
+    // this.setMapTool('draw-polygon')
   }
   // ______________________________________________________________________
   //#endregion
@@ -86,17 +92,25 @@ export class MapTools {
   // **********************************************************************
   setMapTool (mapTool) {
     this.#view.owner.mapElementDisplay.clear()
+    let targetTool = null
     for (const key in this.#toolOperations) {
       if (key === mapTool.toLowerCase()) {
-        this.#toolOperations[key].active()
-        if (this.#toolOperations[key].once) {
-          this.setMapTool(this.#preMapToolKey)
-        } else {
-          this.#preMapToolKey = key
-        }
+        targetTool = this.#toolOperations[key]
       } else {
         this.#toolOperations[key].deactive()
       }
+    }
+    if (targetTool) {
+      targetTool.active()
+      this.#activedMapToolKey = mapTool
+      if (targetTool.once) {
+        return this.setMapTool(this.#preMapToolKey)
+      } else {
+        this.#preMapToolKey = mapTool
+        return this.#activedMapToolKey
+      }
+    } else {
+      return this.setMapTool('')
     }
   }
   // ______________________________________________________________________
