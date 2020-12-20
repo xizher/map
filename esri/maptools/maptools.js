@@ -1,4 +1,5 @@
 import { Basetool } from './basetool'
+import { ClearTool } from './operationtools/drawtool/cleartool'
 import { DrawTool } from './operationtools/drawtool/drawtool'
 import { ZoomHome, ZoomIn, ZoomInRect, ZoomOut, ZoomOutRect } from './operationtools/zoomtool/zoomtool'
 
@@ -81,6 +82,7 @@ export class MapTools {
       'zoom-in': new ZoomIn(this.#map, this.#view),
       'zoom-out': new ZoomOut(this.#map, this.#view),
       'zoom-home': new ZoomHome(this.#map, this.#view),
+      'clear': new ClearTool(this.#map, this.#view),
     }
     // this.setMapTool('draw-polygon')
   }
@@ -91,7 +93,7 @@ export class MapTools {
   //#region 公有方法
   // **********************************************************************
   setMapTool (mapTool) {
-    this.#view.owner.mapElementDisplay.clear()
+    // this.#view.owner.mapElementDisplay.clear()
     let targetTool = null
     for (const key in this.#toolOperations) {
       if (key === mapTool.toLowerCase()) {
