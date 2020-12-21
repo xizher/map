@@ -7,6 +7,7 @@ import { MapElementDisplay } from '../mapelementdisplay/mapelementdisplay'
 import { Hawkeye } from '../hawkeye/hawkeye'
 import { MapTools } from '../maptools/maptools'
 import { initUtils } from '../esri.utils/esri.utils'
+import { LayerOperation } from '../layeroperation/layeroperation'
 
 export class WebMap {
 
@@ -51,6 +52,12 @@ export class WebMap {
    * @type {MapTools}
    */
   #mapTools = null
+
+  /**
+   * 图层容器
+   * @type {LayerOperation}
+   */
+  #layerOperation = null
 
   /** 配置项 */
   #options = {
@@ -132,20 +139,6 @@ export class WebMap {
   #loadMap () {
     this.#map = new esri.Map()
     this.#map.owner = this
-    const layer = new esri.layers.ImageryLayer(this.#options.layersServer['经度地带性分异规律演示图层'])
-    layer.renderer = {
-      type: 'unique-value',
-      field: 'Value',
-      defaultSymbol: { type: 'simple-fill' },
-      uniqueValueInfos: this.#options.globeLand30Colormap.map(item => ({
-        value: item.value,
-        symbol: {
-          type: 'simple-fill',
-          color: item.color
-        }
-      }))
-    }
-    this.#map.add(layer)
   }
 
   #loadMapView () {
@@ -216,6 +209,7 @@ export class WebMap {
     initUtils(this.#map, this.#view)
     this.#loadMapCursor()
     this.#loadBasemap()
+    this.#layerOperation = new LayerOperation(this.#map, this.#view, this.#options.layerOperationOptions)
     this.#mapElementDisplay = new MapElementDisplay(this.#map, this.#view)
     this.#hawkeye = new Hawkeye(this.#view, this.#options.hawkeyeOptions)
     this.#loadMapTools()

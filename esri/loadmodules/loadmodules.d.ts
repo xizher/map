@@ -11,6 +11,7 @@ import Polyline from 'esri/geometry/Polyline'
 import Polygon from 'esri/geometry/Polygon'
 import Circle from 'esri/geometry/Circle'
 import Extent from 'esri/geometry/Extent'
+import FeatureLayer from 'esri/layers/FeatureLayer'
 
 // declare class $GroupLayer extends GroupLayer {}
 
@@ -32,6 +33,7 @@ export declare const esri = {
     ImageryLayer,
     GroupLayer,
     GraphicsLayer,
+    FeatureLayer,
   },
   symbols: {
     SimpleMarkerSymbol,

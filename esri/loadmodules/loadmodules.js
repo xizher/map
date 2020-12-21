@@ -8,6 +8,7 @@ const modules = [
   'esri/layers/ImageryLayer',
   'esri/layers/GroupLayer',
   'esri/layers/GraphicsLayer',
+  'esri/layers/FeatureLayer',
   'esri/symbols/SimpleMarkerSymbol',
   'esri/symbols/SimpleLineSymbol',
   'esri/symbols/SimpleFillSymbol',
