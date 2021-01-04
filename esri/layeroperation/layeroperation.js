@@ -47,7 +47,7 @@ export class LayerOperation {
 
   //#region getter only
   // **********************************************************************
-
+  get layers () { return this.#layers }
   // ______________________________________________________________________
   //#endregion
 
@@ -81,7 +81,7 @@ export class LayerOperation {
   }
 
   #loadLayer (treeItem) {
-    const { target, children } = treeItem
+    const { target, children, title, fromThemeUid } = treeItem
     if (target) {
       const { types, options } = target
       let layer = null
@@ -107,7 +107,7 @@ export class LayerOperation {
       if (layer) {
         this.#layerGroup.add(layer)
         this.#layers.push({
-          types, options,
+          types, options, title, fromThemeUid,
           targetLayer: layer
         })
       }

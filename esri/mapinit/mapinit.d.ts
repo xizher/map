@@ -64,5 +64,6 @@ export class WebMap {
       xInfo: string
       yInfo: string
     }>
+    selectedThemeUid: Ref<number>
   }
 }

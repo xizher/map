@@ -15,12 +15,12 @@ export class WebMap {
   // **********************************************************************
 
   /** 地图对象
-   * @type {import('esri/Map')}
+   * @type {import('./mapinit').$Map}
    */
   #map = null
 
   /** 视图对象
-   * @type {import('esri/views/MapView')}
+   * @type {import('./mapinit').$View}
    */
   #view = null
 
@@ -92,6 +92,7 @@ export class WebMap {
    *    xInfo: string
    *    yInfo: string
    *  }>
+   *  selectedThemeUid: import('vue').Ref<number>
    * }}
    */
   #hooks = {}
@@ -108,6 +109,7 @@ export class WebMap {
   get mapElementDisplay () { return this.#mapElementDisplay }
   get hawkeye () { return this.#hawkeye }
   get mapTools () { return this.#mapTools }
+  get layerOperation () { return this.#layerOperation }
   // ______________________________________________________________________
   //#endregion
 
@@ -194,6 +196,29 @@ export class WebMap {
     })
   }
 
+  #loadLayerOperation () {
+    this.#layerOperation = new LayerOperation(this.#map, this.#view, this.#options.layerOperationOptions)
+    Object.assign(this.#hooks, {
+      selectedThemeUid: ref(-1)
+    })
+    watch(this.#hooks.selectedThemeUid, val => {
+      /** @type {import('esri/geometry/Extent')} */
+      let extent = null
+      this.#layerOperation.layers.forEach(lyr => {
+        if (val === lyr.fromThemeUid) {
+          if (extent) {
+            extent.union(lyr.targetLayer.fullExtent)
+          } else {
+            extent = lyr.targetLayer.fullExtent
+          }
+        }
+      })
+      console.log(extent)
+      extent && (this.#view.homeExtent = extent)
+      this.#hooks.activedMapToolKey.value = 'zoom-home'
+    })
+  }
+
   // ______________________________________________________________________
   //#endregion
 
@@ -209,7 +234,7 @@ export class WebMap {
     initUtils(this.#map, this.#view)
     this.#loadMapCursor()
     this.#loadBasemap()
-    this.#layerOperation = new LayerOperation(this.#map, this.#view, this.#options.layerOperationOptions)
+    this.#loadLayerOperation()
     this.#mapElementDisplay = new MapElementDisplay(this.#map, this.#view)
     this.#hawkeye = new Hawkeye(this.#view, this.#options.hawkeyeOptions)
     this.#loadMapTools()
