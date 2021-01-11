@@ -211,9 +211,11 @@ export class WebMap {
           } else {
             extent = lyr.targetLayer.fullExtent
           }
+          this.#layerOperation.findLayerByName(lyr.name).visible = true
+        } else {
+          this.#layerOperation.findLayerByName(lyr.name).visible = false
         }
       })
-      console.log(extent)
       extent && (this.#view.homeExtent = extent)
       this.#hooks.activedMapToolKey.value = 'zoom-home'
     })

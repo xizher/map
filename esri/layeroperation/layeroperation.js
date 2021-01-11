@@ -107,7 +107,8 @@ export class LayerOperation {
       if (layer) {
         this.#layerGroup.add(layer)
         this.#layers.push({
-          types, options, title, fromThemeUid,
+          types, options, fromThemeUid,
+          name: title,
           targetLayer: layer
         })
       }
@@ -124,7 +125,18 @@ export class LayerOperation {
 
   //#region 公有方法
   // **********************************************************************
-
+  /**
+   * 通过图层名寻找图层对象
+   * @param {string} name 图层名
+   * @returns {import('esri/layers/Layer') | null}
+   */
+  findLayerByName (name) {
+    const item = this.#layers.$findItem('name', name)
+    if (item && item.targetLayer) {
+      return item.targetLayer
+    }
+    return null
+  }
   // ______________________________________________________________________
   //#endregion
 }
