@@ -7,6 +7,7 @@ import { Hawkeye } from '../hawkeye/hawkeye'
 import { MapCursor } from '../mapcursor/mapcursor'
 import { MapElementDisplay } from '../mapelementdisplay/mapelementdisplay'
 import { MapTools } from '../maptools/maptools'
+import { LayerOperation } from '../layeroperation/layeroperation'
 
 export class $Map extends ArcGISMap {
   owner: WebMap
@@ -45,6 +46,9 @@ export class WebMap {
   
   /** 地图工具对象 */
   get mapTools () : MapTools
+
+  /** 图层管理对象 */
+  get layerOperation () : LayerOperation
 
   /**
    * 地图状态钩子
