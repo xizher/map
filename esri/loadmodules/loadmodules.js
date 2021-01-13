@@ -12,6 +12,7 @@ const modules = [
   'esri/symbols/SimpleMarkerSymbol',
   'esri/symbols/SimpleLineSymbol',
   'esri/symbols/SimpleFillSymbol',
+  'esri/geometry/Point',
   'esri/geometry/Polyline',
   'esri/geometry/Polygon',
   'esri/geometry/Circle',

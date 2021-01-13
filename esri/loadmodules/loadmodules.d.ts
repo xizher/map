@@ -7,6 +7,7 @@ import GraphicsLayer from 'esri/layers/GraphicsLayer'
 import SimpleMarkerSymbol from 'esri/symbols/SimpleMarkerSymbol'
 import SimpleLineSymbol from 'esri/symbols/SimpleLineSymbol'
 import SimpleFillSymbol from 'esri/symbols/SimpleFillSymbol'
+import Point from 'esri/geometry/Point'
 import Polyline from 'esri/geometry/Polyline'
 import Polygon from 'esri/geometry/Polygon'
 import Circle from 'esri/geometry/Circle'
@@ -41,6 +42,7 @@ export declare const esri = {
     SimpleFillSymbol,
   },
   geometry: {
+    Point,
     Polyline,
     Polygon,
     Circle,

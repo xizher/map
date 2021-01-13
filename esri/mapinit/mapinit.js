@@ -134,7 +134,8 @@ export class WebMap {
 
   #init () {
     Object.assign(this.#hooks, {
-      loaded: ref(false)
+      loaded: ref(false),
+      selectedThemeUid: ref(-1)
     })
   }
 
@@ -198,9 +199,6 @@ export class WebMap {
 
   #loadLayerOperation () {
     this.#layerOperation = new LayerOperation(this.#map, this.#view, this.#options.layerOperationOptions)
-    Object.assign(this.#hooks, {
-      selectedThemeUid: ref(-1)
-    })
     watch(this.#hooks.selectedThemeUid, val => {
       /** @type {import('esri/geometry/Extent')} */
       let extent = null
