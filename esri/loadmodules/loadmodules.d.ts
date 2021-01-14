@@ -1,5 +1,6 @@
 import ArcGISMap from 'esri/Map'
 import MapView from 'esri/views/MapView'
+import SceneView from 'esri/views/SceneView'
 import WebTileLayer from 'esri/layers/WebTileLayer'
 import ImageryLayer from 'esri/layers/ImageryLayer'
 import GroupLayer from 'esri/layers/GroupLayer'
@@ -28,6 +29,7 @@ export declare const esri = {
   Map: ArcGISMap,
   views: {
     MapView,
+    SceneView,
   },
   layers: {
     WebTileLayer,

@@ -4,6 +4,7 @@ import { apiConfig } from '../../../config/app.conf'
 const modules = [
   'esri/Map',
   'esri/views/MapView',
+  'esri/views/SceneView',
   'esri/layers/WebTileLayer',
   'esri/layers/ImageryLayer',
   'esri/layers/GroupLayer',

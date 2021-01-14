@@ -133,9 +133,17 @@ export class WebMap {
   // **********************************************************************
 
   #init () {
+    const pointerLocation = reactive({
+      lon: 0, lat: 0, x: 0, y: 0,
+      lonInfo: computed(() => pointerLocation.lon.toFixed(9)),
+      latInfo: computed(() => pointerLocation.lat.toFixed(9)),
+      xInfo: computed(() => pointerLocation.x.toFixed(3)),
+      yInfo: computed(() => pointerLocation.y.toFixed(3)),
+    })
     Object.assign(this.#hooks, {
       loaded: ref(false),
-      selectedThemeUid: ref(-1)
+      selectedThemeUid: ref(-1),
+      pointerLocation,
     })
   }
 
@@ -151,16 +159,6 @@ export class WebMap {
       ...this.#options.viewOptions
     })
     this.#view.owner = this
-    const pointerLocation = reactive({
-      lon: 0, lat: 0, x: 0, y: 0,
-      lonInfo: computed(() => pointerLocation.lon.toFixed(9)),
-      latInfo: computed(() => pointerLocation.lat.toFixed(9)),
-      xInfo: computed(() => pointerLocation.x.toFixed(3)),
-      yInfo: computed(() => pointerLocation.y.toFixed(3)),
-    })
-    Object.assign(this.#hooks, {
-      pointerLocation,
-    })
     this.#view.on('pointer-move', event => {
       const point = this.#view.toMap(event)
       const { x, y, longitude, latitude } = point
@@ -168,6 +166,26 @@ export class WebMap {
       this.#hooks.pointerLocation.y = y
       this.#hooks.pointerLocation.lon = longitude
       this.#hooks.pointerLocation.lat = latitude
+    })
+  }
+
+  #loadSceneView () {
+    this.#view = new esri.views.SceneView({
+      container: this.#divId,
+      map: this.#map,
+      ...this.#options.viewOptions
+    })
+    this.#view.owner = this
+    this.#view.on('pointer-move', event => {
+      console.log(event)
+      const point = this.#view.toMap(event)
+      if (point) {
+        const { x, y, longitude, latitude } = point
+        this.#hooks.pointerLocation.x = x
+        this.#hooks.pointerLocation.y = y
+        this.#hooks.pointerLocation.lon = longitude
+        this.#hooks.pointerLocation.lat = latitude
+      }
     })
   }
 
@@ -228,9 +246,13 @@ export class WebMap {
   // **********************************************************************
 
   /** 加载 */
-  load () {
+  load (dimension = '2') {
     this.#loadMap()
-    this.#loadMapView()
+    if (dimension === '2') {
+      this.#loadMapView()
+    } else {
+      this.#loadSceneView()
+    }
     initUtils(this.#map, this.#view)
     this.#loadMapCursor()
     this.#loadBasemap()
@@ -250,6 +272,16 @@ export class WebMap {
 
   useHooks () {
     return this.#hooks
+  }
+
+  toSceneView () {
+    // todo
+    this.#loadSceneView()
+  }
+
+  toMapView () {
+    // todo
+    this.#loadMapView()
   }
 
   // ______________________________________________________________________
