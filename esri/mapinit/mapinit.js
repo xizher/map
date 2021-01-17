@@ -145,6 +145,7 @@ export class WebMap {
       selectedThemeUid: ref(-1),
       pointerLocation,
     })
+    esri.config.request.timeout = '9999999999'
   }
 
   #loadMap () {

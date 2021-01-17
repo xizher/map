@@ -2,6 +2,7 @@ import { loadModules } from 'esri-loader'
 import { apiConfig } from '../../../config/app.conf'
 
 const modules = [
+  'esri/config',
   'esri/Map',
   'esri/views/MapView',
   'esri/views/SceneView',

@@ -1,3 +1,4 @@
+import config from 'esri/config'
 import ArcGISMap from 'esri/Map'
 import MapView from 'esri/views/MapView'
 import SceneView from 'esri/views/SceneView'
@@ -26,6 +27,7 @@ export declare function loadEsriModules () : Promise<void>
  * ESRI模块库
  */
 export declare const esri = {
+  config,
   Map: ArcGISMap,
   views: {
     MapView,
