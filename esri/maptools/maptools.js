@@ -115,6 +115,10 @@ export class MapTools {
       return this.setMapTool('')
     }
   }
+
+  createCustomTool (toolName, toolObject) {
+    this.#toolOperations[toolName] = toolObject
+  }
   // ______________________________________________________________________
   //#endregion
 }
