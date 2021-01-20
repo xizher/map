@@ -133,7 +133,6 @@ export class DrawOperations {
     let drawing = false
     let startPoint = null
     DrawOperations.#removed.drag = drawTool.view.on('drag', event => {
-      console.log('draw')
       event.stopPropagation()
     })
     DrawOperations.#removed['pointer-down'] = drawTool.view.on('pointer-down', event => {
