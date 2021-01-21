@@ -119,6 +119,11 @@ export class MapTools {
   createCustomTool (toolName, toolObject) {
     this.#toolOperations[toolName] = toolObject
   }
+
+  hasTool (toolName) {
+    // eslint-disable-next-line no-prototype-builtins
+    return Object.prototype.hasOwnProperty(toolName)
+  }
   // ______________________________________________________________________
   //#endregion
 }
