@@ -137,6 +137,31 @@ export class LayerOperation {
     }
     return null
   }
+
+  cloneLayer (layerName) {
+    const item = this.#layers.$findItem('name', layerName)
+    const { types, options } = item
+    let layer = null
+    if (types.includes('ImageryLayer')) {
+      layer = new esri.layers.ImageryLayer(options)
+      if (types.includes('GlobeLand30')) {
+        layer.renderer = {
+          type: 'unique-value',
+          field: 'Value',
+          defaultSymbol: { type: 'simple-fill' },
+          uniqueValueInfos: this.#options.globeLand30Colormap.map(legendItem => ({
+            value: legendItem.value,
+            symbol: {
+              type: 'simple-fill',
+              color: legendItem.color
+            }
+          }))
+        }
+      }
+    }
+    return layer
+  }
+
   // ______________________________________________________________________
   //#endregion
 }
