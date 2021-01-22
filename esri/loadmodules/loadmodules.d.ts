@@ -15,6 +15,8 @@ import Polygon from 'esri/geometry/Polygon'
 import Circle from 'esri/geometry/Circle'
 import Extent from 'esri/geometry/Extent'
 import FeatureLayer from 'esri/layers/FeatureLayer'
+import Swipe from 'esri/widgets/Swipe'
+import watchUtils from 'esri/core/watchUtils'
 
 // declare class $GroupLayer extends GroupLayer {}
 
@@ -52,4 +54,10 @@ export declare const esri = {
     Circle,
     Extent,
   },
+  widgets: {
+    Swipe,
+  },
+  core: {
+    watchUtils
+  }
 }

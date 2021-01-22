@@ -19,6 +19,8 @@ const modules = [
   'esri/geometry/Polygon',
   'esri/geometry/Circle',
   'esri/geometry/Extent',
+  'esri/widgets/Swipe',
+  'esri/core/watchUtils',
 ]
 
 export const esri = {}
